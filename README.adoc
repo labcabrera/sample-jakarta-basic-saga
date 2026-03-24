@@ -99,26 +99,22 @@ Para el consumo y el envio de mensajes se han definido las interfaces:
 
 [source,java]
 ----
-public interface Consumer<T> extends AutoCloseable {
+public interface MessageConsumer<T> extends AutoCloseable {
 
-   CompletionStage<Message<T>> receive();
+    CompletionStage<Message<T>> receive();
 
-    void subscribe(java.util.function.Consumer<Message<T>> handler);
-
-    void close();
+    void subscribe(Consumer<Message<T>> handler);
 }
 ----
 
 [source,java]
 ----
-public interface Producer<T> extends AutoCloseable {
+public interface MessageProducer<T> extends AutoCloseable {
 
     CompletionStage<SendResult> send(T payload);
 
     CompletionStage<SendResult> send(Message<T> message);
 
-    @Override
-    void close();
 }
 ----
 
@@ -149,7 +145,7 @@ messaging.channels.kafka.bootstrap.servers=sample-kafka-broker:9092
 # Productores
 messaging.channels.creacion-expediente.type=rabbitmq
 messaging.channels.creacion-expediente.exchange=expedientes
-messaging.channels.creacion-expediente.routing-key=creacion-expediente
+messaging.channels.creacion-expediente.routing-key=creacion
 
 messaging.channels.creacion-expediente-alerta.type=kafka
 messaging.channels.creacion-expediente-alerta.topic=creacion-expediente-alerta-topic
