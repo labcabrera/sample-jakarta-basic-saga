@@ -76,7 +76,5 @@ Activate Kafka
 deactivate Kafka
 activate Worker
 Worker -> Worker: Ejecutar lógica de negocio en error
-' deactivate Worker
-' deactivate Kafka
 
 @enduml

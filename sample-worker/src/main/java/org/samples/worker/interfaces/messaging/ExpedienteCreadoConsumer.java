@@ -6,6 +6,8 @@ import jakarta.enterprise.context.Initialized;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
+
 import org.samples.binder.Channel;
 import org.samples.binder.MessageConsumer;
 import org.samples.binder.Message;
@@ -50,10 +52,10 @@ public class ExpedienteCreadoConsumer {
 			resultado.setMessage("Error :" + ex.getMessage());
 		}
 		if (success) {
-			this.producerSuccess.send(resultado);
+			this.producerSuccess.send(new Message<>(resultado, msg.key(), Map.of("correlationId", msg.key())));
 		}
 		else {
-			this.producerError.send(resultado);
+			this.producerError.send(new Message<>(resultado, msg.key(), Map.of("correlationId", msg.key())));
 		}
 	}
 }
