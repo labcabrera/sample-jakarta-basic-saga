@@ -7,9 +7,9 @@ import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 import org.samples.binder.Channel;
-import org.samples.binder.Consumer;
+import org.samples.binder.MessageConsumer;
 import org.samples.binder.Message;
-import org.samples.binder.Producer;
+import org.samples.binder.MessageProducer;
 import org.samples.worker.application.ports.ProcesadorExpedientePort;
 import org.samples.worker.interfaces.messaging.dtos.CreacionExpedienteDto;
 import org.samples.worker.interfaces.messaging.dtos.ResultadoCreacionExpedienteDto;
@@ -20,15 +20,15 @@ public class ExpedienteCreadoConsumer {
 
 	@Inject
 	@Channel("creacion-expediente")
-	private Consumer<CreacionExpedienteDto> consumer;
+	private MessageConsumer<CreacionExpedienteDto> consumer;
 
 	@Inject
 	@Channel("creacion-expediente-ok")
-	private Producer<ResultadoCreacionExpedienteDto> producerSuccess;
+	private MessageProducer<ResultadoCreacionExpedienteDto> producerSuccess;
 
 	@Inject
 	@Channel("creacion-expediente-ko")
-	private Producer<ResultadoCreacionExpedienteDto> producerError;
+	private MessageProducer<ResultadoCreacionExpedienteDto> producerError;
 
 	@Inject
 	private ProcesadorExpedientePort procesadorExpediente;

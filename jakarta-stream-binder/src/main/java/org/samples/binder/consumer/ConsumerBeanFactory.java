@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 
 import org.samples.binder.Channel;
 import org.samples.binder.ChannelConfig;
-import org.samples.binder.Consumer;
+import org.samples.binder.MessageConsumer;
 
 @ApplicationScoped
 @Slf4j
@@ -26,7 +26,7 @@ public class ConsumerBeanFactory {
 
     @Produces
     @Channel("")
-    public <T> Consumer<T> produceConsumer(InjectionPoint injectionPoint) {
+    public <T> MessageConsumer<T> produceConsumer(InjectionPoint injectionPoint) {
         log.info("Creating Consumer for {}", injectionPoint);
 
         Channel channel = injectionPoint.getAnnotated().getAnnotation(Channel.class);

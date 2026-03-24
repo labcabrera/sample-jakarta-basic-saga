@@ -1,4 +1,4 @@
-package org.samples.app.domain;
+package org.samples.app.domain.entities;
 
 public enum EstadoExpediente {
 

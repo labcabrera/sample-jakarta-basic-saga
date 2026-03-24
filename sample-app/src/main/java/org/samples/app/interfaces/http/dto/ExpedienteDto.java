@@ -1,9 +1,10 @@
 package org.samples.app.interfaces.http.dto;
 
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
-import org.samples.app.domain.EstadoExpediente;
+import org.samples.app.domain.entities.EstadoExpediente;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -5,10 +5,10 @@ import java.util.stream.Collectors;
 import java.util.Optional;
 
 import org.samples.app.application.ports.ExpedienteRepository;
-import org.samples.app.domain.Expediente;
+import org.samples.app.domain.entities.EstadoExpediente;
+import org.samples.app.domain.entities.Expediente;
 import org.samples.app.infrastructure.db.entities.ExpedienteEntity;
 import org.samples.app.infrastructure.db.mappers.ExpedienteEntityMapper;
-import org.samples.app.domain.EstadoExpediente;
 
 import java.time.LocalDateTime;
 

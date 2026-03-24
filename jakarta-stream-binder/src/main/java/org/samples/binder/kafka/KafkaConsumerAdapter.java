@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.samples.binder.ChannelConfig;
-import org.samples.binder.Consumer;
+import org.samples.binder.MessageConsumer;
 import org.samples.binder.Message;
 
 import java.time.Duration;
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Slf4j
-public class KafkaConsumerAdapter<T> implements Consumer<T> {
+public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
 
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topic;

@@ -19,7 +19,7 @@ import java.util.List;
 import org.samples.app.application.cqrs.commands.CrearExpedienteCommand;
 import org.samples.app.application.cqrs.queries.GetExpedienteByIdQuery;
 import org.samples.app.application.cqrs.queries.GetExpedientesQuery;
-import org.samples.app.domain.Expediente;
+import org.samples.app.domain.entities.Expediente;
 import org.samples.app.interfaces.http.dto.CreacionExpedienteDto;
 import org.samples.app.interfaces.http.dto.ExpedienteDto;
 import org.samples.app.interfaces.http.mappers.ExpedienteDtoMapper;

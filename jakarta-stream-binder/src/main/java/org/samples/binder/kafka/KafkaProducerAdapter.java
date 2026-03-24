@@ -16,12 +16,12 @@ import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.Message;
-import org.samples.binder.Producer;
+import org.samples.binder.MessageProducer;
 import org.samples.binder.SendResult;
 import org.samples.binder.serialization.JsonMessageSerializer;
 
 @Slf4j
-public class KafkaProducerAdapter<T> implements Producer<T> {
+public class KafkaProducerAdapter<T> implements MessageProducer<T> {
 
     private final KafkaProducer<String, byte[]> producer;
     private final String topic;

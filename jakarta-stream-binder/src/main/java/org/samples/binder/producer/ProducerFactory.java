@@ -2,7 +2,7 @@ package org.samples.binder.producer;
 
 import org.samples.binder.BinderConfiguration;
 import org.samples.binder.ChannelConfig;
-import org.samples.binder.Producer;
+import org.samples.binder.MessageProducer;
 import org.samples.binder.kafka.KafkaProducerAdapter;
 import org.samples.binder.rabbitmq.RabbitProducerAdapter;
 
@@ -41,8 +41,8 @@ public class ProducerFactory {
         };
     }
 
-    public <T> Producer<T> createProducer(ChannelConfig cfg, Class<T> payloadType) {
-        return (Producer<T>) switch (cfg.getType()) {
+    public <T> MessageProducer<T> createProducer(ChannelConfig cfg, Class<T> payloadType) {
+        return (MessageProducer<T>) switch (cfg.getType()) {
         case KAFKA -> new KafkaProducerAdapter<T>(cfg, payloadType);
         case RABBITMQ -> new RabbitProducerAdapter<T>(cfg, payloadType);
         };

@@ -2,7 +2,7 @@ package org.samples.app.application.cqrs.handlers;
 
 import org.samples.app.application.cqrs.queries.GetExpedienteByIdQuery;
 import org.samples.app.application.ports.ExpedienteRepository;
-import org.samples.app.domain.Expediente;
+import org.samples.app.domain.entities.Expediente;
 import org.samples.cqrs.QueryHandler;
 
 import jakarta.enterprise.context.ApplicationScoped;

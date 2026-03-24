@@ -8,18 +8,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import org.samples.binder.Consumer;
+import org.samples.binder.MessageConsumer;
 
 @ApplicationScoped
 @Slf4j
 public class ConsumerRegistry {
 
-    private final Map<String, Consumer<?>> consumers = new ConcurrentHashMap<>();
+    private final Map<String, MessageConsumer<?>> consumers = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    public <T> Consumer<T> getOrCreate(String channelName, Class<T> payloadType, Supplier<Consumer<T>> supplier) {
+    public <T> MessageConsumer<T> getOrCreate(String channelName, Class<T> payloadType, Supplier<MessageConsumer<T>> supplier) {
         log.info("Obtaining Consumer for channel '{}' and payload {}", channelName, payloadType);
-        return (Consumer<T>) consumers.computeIfAbsent(channelName, key -> supplier.get());
+        return (MessageConsumer<T>) consumers.computeIfAbsent(channelName, key -> supplier.get());
     }
 
     @PreDestroy

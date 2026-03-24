@@ -4,12 +4,13 @@ import java.time.LocalDateTime;
 
 import org.samples.app.application.cqrs.commands.CrearExpedienteCommand;
 import org.samples.app.application.ports.ExpedienteRepository;
-import org.samples.app.domain.EstadoExpediente;
-import org.samples.app.domain.Expediente;
+import org.samples.app.domain.entities.EstadoExpediente;
+import org.samples.app.domain.entities.Expediente;
+import org.samples.app.domain.events.ExpedienteParcialmenteCreadoEvent;
 import org.samples.binder.Channel;
 import org.samples.cqrs.CommandHandler;
 
-import org.samples.binder.Producer;
+import org.samples.binder.MessageProducer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,7 +25,7 @@ public class CrearExpedienteHandler implements CommandHandler<CrearExpedienteCom
 
     @Inject
     @Channel("creacion-expediente")
-    private Producer<Expediente> eventProducer;
+    private MessageProducer<ExpedienteParcialmenteCreadoEvent> eventProducer;
 
     @Override
     public Expediente execute(CrearExpedienteCommand command) {
@@ -38,7 +39,10 @@ public class CrearExpedienteHandler implements CommandHandler<CrearExpedienteCom
             .estado(EstadoExpediente.PENDIENTE_CREACION)
             .build();
         expedienteRepository.save(expediente);
-        this.eventProducer.send(expediente).whenComplete((result, ex) -> {
+        ExpedienteParcialmenteCreadoEvent event = new ExpedienteParcialmenteCreadoEvent(
+            expediente.getId(),
+            expediente.getCodigoExpediente());
+        this.eventProducer.send(event).whenComplete((result, ex) -> {
             if (ex != null) {
                 log.error("Error al enviar evento de creacion de expediente", ex);
             }

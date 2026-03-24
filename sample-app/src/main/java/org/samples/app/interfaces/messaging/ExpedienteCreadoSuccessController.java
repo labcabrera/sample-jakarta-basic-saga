@@ -3,7 +3,7 @@ package org.samples.app.interfaces.messaging;
 import org.samples.app.application.cqrs.commands.ConsolidarExpedienteCommand;
 import org.samples.app.interfaces.messaging.dtos.ResultadoCreacionExpedienteDto;
 import org.samples.binder.Channel;
-import org.samples.binder.Consumer;
+import org.samples.binder.MessageConsumer;
 import org.samples.binder.Message;
 import org.samples.cqrs.CommandBus;
 
@@ -19,7 +19,7 @@ public class ExpedienteCreadoSuccessController {
 
     @Inject
     @Channel("creacion-expediente-ok")
-    private Consumer<ResultadoCreacionExpedienteDto> consumer;
+    private MessageConsumer<ResultadoCreacionExpedienteDto> consumer;
 
     @Inject
     private CommandBus commandBus;

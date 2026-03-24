@@ -2,9 +2,9 @@ package org.samples.app.application.cqrs.handlers;
 
 import org.samples.app.application.cqrs.commands.CompensarExpedienteCommand;
 import org.samples.app.application.ports.ExpedienteRepository;
-import org.samples.app.domain.AlertaExpediente;
+import org.samples.app.domain.entities.AlertaExpediente;
 import org.samples.binder.Channel;
-import org.samples.binder.Producer;
+import org.samples.binder.MessageProducer;
 import org.samples.cqrs.CommandHandler;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,7 +20,7 @@ public class CompensarExpedienteHandler implements CommandHandler<CompensarExped
 
     @Inject
     @Channel("creacion-expediente-alerta")
-    private Producer<AlertaExpediente> eventProducer;
+    private MessageProducer<AlertaExpediente> eventProducer;
 
     @Override
     public Void execute(CompensarExpedienteCommand command) {

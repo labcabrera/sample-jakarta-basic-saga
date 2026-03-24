@@ -8,18 +8,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import org.samples.binder.Producer;
+import org.samples.binder.MessageProducer;
 
 @ApplicationScoped
 @Slf4j
 public class ProducerRegistry {
 
-    private final Map<String, Producer<?>> producers = new ConcurrentHashMap<>();
+    private final Map<String, MessageProducer<?>> producers = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    public <T> Producer<T> getOrCreate(String channelName, Class<T> payloadType, Supplier<Producer<T>> supplier) {
+    public <T> MessageProducer<T> getOrCreate(String channelName, Class<T> payloadType, Supplier<MessageProducer<T>> supplier) {
         log.info("Obtaining Producer for channel '{}' y payload {}", channelName, payloadType);
-        return (Producer<T>) producers.computeIfAbsent(channelName, key -> supplier.get());
+        return (MessageProducer<T>) producers.computeIfAbsent(channelName, key -> supplier.get());
     }
 
     @PreDestroy

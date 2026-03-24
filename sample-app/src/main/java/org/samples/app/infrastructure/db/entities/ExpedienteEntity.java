@@ -3,7 +3,7 @@ package org.samples.app.infrastructure.db.entities;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.samples.app.domain.EstadoExpediente;
+import org.samples.app.domain.entities.EstadoExpediente;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

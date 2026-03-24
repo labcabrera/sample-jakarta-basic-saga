@@ -2,8 +2,8 @@ package org.samples.app.application.cqrs.handlers;
 
 import org.samples.app.application.cqrs.commands.ConsolidarExpedienteCommand;
 import org.samples.app.application.ports.ExpedienteRepository;
-import org.samples.app.domain.EstadoExpediente;
-import org.samples.app.domain.Expediente;
+import org.samples.app.domain.entities.EstadoExpediente;
+import org.samples.app.domain.entities.Expediente;
 import org.samples.cqrs.CommandHandler;
 
 import jakarta.enterprise.context.ApplicationScoped;

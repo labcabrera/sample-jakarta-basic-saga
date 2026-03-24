@@ -1,4 +1,4 @@
-package org.samples.app.domain;
+package org.samples.app.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

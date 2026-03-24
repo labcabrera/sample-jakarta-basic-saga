@@ -2,7 +2,7 @@ package org.samples.binder.consumer;
 
 import org.samples.binder.BinderConfiguration;
 import org.samples.binder.ChannelConfig;
-import org.samples.binder.Consumer;
+import org.samples.binder.MessageConsumer;
 import org.samples.binder.kafka.KafkaConsumerAdapter;
 import org.samples.binder.rabbitmq.RabbitConsumerAdapter;
 
@@ -15,8 +15,8 @@ public class ConsumerFactory {
 
     private final BinderConfiguration config = new BinderConfiguration();
 
-    public <T> Consumer<T> createConsumer(ChannelConfig cfg, Class<T> payloadType) {
-        return (Consumer<T>) switch (cfg.getType()) {
+    public <T> MessageConsumer<T> createConsumer(ChannelConfig cfg, Class<T> payloadType) {
+        return (MessageConsumer<T>) switch (cfg.getType()) {
         case RABBITMQ -> new RabbitConsumerAdapter<T>(cfg, payloadType);
         case KAFKA -> new KafkaConsumerAdapter<T>(cfg, payloadType);
         };
