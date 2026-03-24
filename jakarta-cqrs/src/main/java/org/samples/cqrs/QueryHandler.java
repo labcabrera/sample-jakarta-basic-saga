@@ -1,7 +1,7 @@
 package org.samples.cqrs;
 
-public interface QueryHandler<C, R> {
+import java.util.function.Function;
 
-    R execute(C query);
+public interface QueryHandler<C, R> extends Function<C, R> {
 
 }

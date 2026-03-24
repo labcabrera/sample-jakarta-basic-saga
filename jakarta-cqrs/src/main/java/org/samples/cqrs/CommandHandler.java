@@ -1,7 +1,7 @@
 package org.samples.cqrs;
 
-public interface CommandHandler<C, R> {
+import java.util.function.Function;
 
-    R execute(C command);
+public interface CommandHandler<C, R> extends Function<C, R> {
 
 }

@@ -79,7 +79,7 @@ public class CommandBus {
             }
         }
         if (found != null) {
-            Object result = found.execute(command);
+            Object result = found.apply(command);
             return responseType.cast(result);
         }
         throw new IllegalStateException("No CommandHandler found for command: " + command.getClass());
