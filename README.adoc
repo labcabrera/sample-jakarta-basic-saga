@@ -20,6 +20,12 @@ Adicionalmente se utilizan las dependencias:
 * _lombok_: para reducir el código boilerplate.
 * _jackson_: para la serialización y deserialización de objetos JSON.
 
+## Flujo de la aplicación
+
+El flujo de la aplicación es el siguiente:
+
+image::./images/sequence-diagram.png[]
+
 ## Ejecución
 
 Compilaremos usando:

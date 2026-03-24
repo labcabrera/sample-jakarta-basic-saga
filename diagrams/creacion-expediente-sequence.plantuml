@@ -1,0 +1,82 @@
+@startuml Case Folder Creation Sequence Diagram
+title Case Folder Creation Sequence Diagram
+
+skinparam ParticipantBackgroundColor #005b72
+skinparam ParticipantFontColor #ffffff
+skinparam ArrowColor #000000
+
+participant "API Client" as Client
+participant "API" as API
+participant "Database" as DB
+participant "Kafka" as Kafka
+participant "RabbitMQ" as Rabbit
+participant "Worker" as Worker
+
+== Creación de expediente ==
+
+Client -> API: POST /expedientes
+activate Client
+activate API
+API -> DB: Save
+activate DB
+DB --> API: Saved
+deactivate DB
+API -> Rabbit: Event CreacionExpediente
+activate Rabbit
+Rabbit --> API: Ack
+deactivate Rabbit
+API --> Client: 201 Created
+deactivate API
+deactivate Client
+
+== Crecion Expediente OK ==
+
+Rabbit -> Worker: Evento expediente creado
+activate Rabbit
+activate Worker
+Worker -> Worker: Ejecutar lógica de negocio
+Worker -> Rabbit: Publish Created OK
+deactivate Worker
+
+Rabbit -> API: Evento expediente creado OK
+deactivate Rabbit
+activate API
+API -> DB: Actualizar estado
+activate DB
+DB --> API: Updated
+deactivate DB
+deactivate API
+
+== Crecion Expediente KO ==
+
+Rabbit -> Worker: Evento expediente creado
+activate Rabbit
+activate Worker
+Worker -> Worker: Ejecutar lógica de negocio
+Worker -> Rabbit: Publish Created KO
+deactivate Worker
+
+Rabbit -> API: Evento expediente creado KO
+deactivate Rabbit
+activate API
+API -> DB: Borrar expediente
+activate DB
+DB --> API: Deleted
+deactivate DB
+API -> Kafka: Publish Expediente Alert
+activate Kafka
+Kafka --> API: Ack
+deactivate Kafka
+deactivate API
+
+== Procesamiento error creacion expediente ==
+
+Kafka -> Worker: Consume Expediente Alert
+Activate Kafka
+deactivate Kafka
+activate Worker
+Worker -> Worker: Ejecutar lógica de negocio en error
+' deactivate Worker
+' deactivate Kafka
+
+@enduml
