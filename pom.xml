@@ -27,6 +27,8 @@
         <wildfly.version>38.0.0.Final</wildfly.version>
         <lombok.version>1.18.26</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
+        <kafka.version>3.9.2</kafka.version>
+        <rabbitmq.version>5.16.0</rabbitmq.version>
     </properties>
 
     <dependencies>
@@ -37,6 +39,21 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.samples</groupId>
+                <artifactId>jakarta-stream-binder</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.samples</groupId>
+                <artifactId>jakarta-cqrs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

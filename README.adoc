@@ -1,6 +1,6 @@
 # Sample Jakarta Basic SAGA
 
-Ejemplo de implementación SAGA utilizando Jakarta EE.
+Ejemplo de implementación SAGA coreografiada utilizando Jakarta EE sin dependencias adicionales.
 
 La aplicación consta de dos microservicios:
 
@@ -13,6 +13,12 @@ Estos microservicios utilizan las librerías compartidas:
 
 * _jakarta-stream-binder_: librería de abstracción para la integración con sistemas de mensajería (Kafka y RabbitMQ en este ejemplo).
 * _jakarta-cqts_: implementación básica de CQRS para integrar el tratamiento de eventos.
+
+Adicionalmente se utilizan las dependencias:
+
+* _mapstruct_: para el mapeo entre entidades y DTOs.
+* _lombok_: para reducir el código boilerplate.
+* _jackson_: para la serialización y deserialización de objetos JSON.
 
 ## Ejecución
 
@@ -128,6 +134,11 @@ Esto permitirá definir los consumidores y productores del siguiente modo:
 Para la gestión de los expedientes se ha optado por una arquitectura CQRS, con un repositorio JPA para la parte de consulta y un repositorio basado en eventos para la parte de comandos.
 
 Esta es una implementación mínima de CQRS, sin separación de modelos ni bases de datos, pero que permite ilustrar el concepto de forma sencilla.
+
+## TODO
+
+* Implementación de gestión de errores en los binders con politicas de reintentos y tratamiento customizado de excepciones.
+* Registro automático de exchange/queue y topics para no hacerlo manualmente.
 
 ## Notas
 

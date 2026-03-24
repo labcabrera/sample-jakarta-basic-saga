@@ -19,15 +19,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.samples</groupId>
+            <artifactId>jakarta-stream-binder</artifactId>
+        </dependency>
+        <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
             <version>${jakarta.platform.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.samples</groupId>
-            <artifactId>jakarta-stream-binder</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
