@@ -28,7 +28,7 @@ public class CrearExpedienteHandler implements CommandHandler<CrearExpedienteCom
     private MessageProducer<ExpedienteParcialmenteCreadoEvent> eventProducer;
 
     @Override
-    public Expediente execute(CrearExpedienteCommand command) {
+    public Expediente apply(CrearExpedienteCommand command) {
         log.info("Ejecutando comando de creación de expediente: {}", command);
         Expediente expediente = Expediente.builder()
             .nombre(command.getNombre())

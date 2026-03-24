@@ -19,7 +19,7 @@ public class ConsolidarExpedienteHandler implements CommandHandler<ConsolidarExp
     private ExpedienteRepository expedienteRepository;
 
     @Override
-    public Expediente execute(ConsolidarExpedienteCommand command) {
+    public Expediente apply(ConsolidarExpedienteCommand command) {
         log.info("Ejecutando comando de consolidación de expediente: {}", command);
         String id = command.getId();
         Expediente expediente = expedienteRepository.findById(id).orElseThrow(NotFoundException::new);

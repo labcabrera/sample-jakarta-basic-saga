@@ -1,6 +1,7 @@
 package org.samples.app.interfaces.messaging;
 
 import org.samples.app.application.cqrs.commands.ConsolidarExpedienteCommand;
+import org.samples.app.domain.entities.Expediente;
 import org.samples.app.interfaces.messaging.dtos.ResultadoCreacionExpedienteDto;
 import org.samples.binder.Channel;
 import org.samples.binder.MessageConsumer;
@@ -34,6 +35,7 @@ public class ExpedienteCreadoSuccessController {
         log.info("Recibido resultado Success << {}", resultado);
         String id = resultado.getId();
         ConsolidarExpedienteCommand cmd = new ConsolidarExpedienteCommand(id);
-        commandBus.execute(cmd, Void.class);
+        Expediente expediente = commandBus.execute(cmd, Expediente.class);
+        log.info("Expediente consolidado: {}", expediente.getId());
     }
 }

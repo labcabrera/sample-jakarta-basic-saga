@@ -17,7 +17,7 @@ public class GetExpedientesHandler implements QueryHandler<GetExpedientesQuery, 
     private ExpedienteRepository repository;
 
     @Override
-    public List<Expediente> execute(GetExpedientesQuery query) {
+    public List<Expediente> apply(GetExpedientesQuery query) {
         return repository.findAll();
     }
 
