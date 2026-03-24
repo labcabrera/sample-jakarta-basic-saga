@@ -7,13 +7,9 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
-
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -29,14 +25,11 @@ public class RabbitConsumerAdapter<T> implements MessageConsumer<T> {
     private final String queue;
     private final Connection connection;
     private final Channel channel;
-    private final Class<T> payloadType;
     private java.util.function.Consumer<Message<T>> handler;
     private JsonMessageDeserializer jsonDeserializer = new JsonMessageDeserializer();
 
     public RabbitConsumerAdapter(ChannelConfig cfg, Class<T> payloadType) {
         this.queue = cfg.getQueue();
-        this.payloadType = payloadType;
-
         log.info("Creating RabbitConsumerAdapter for channel='{}' queue='{}' payload='{}'' host='{}@{}' user='{}@{}'",
             cfg.getChannelName(),
             queue,

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JsonMessageDeserializer {
 
+    @SuppressWarnings("unchecked")
     public <T> T deserialize(byte[] body, Class<T> payloadType) {
         if (body == null)
             return null;

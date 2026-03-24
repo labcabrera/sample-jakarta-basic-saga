@@ -12,6 +12,15 @@ public class ChannelConfig {
         return cfg;
     }
 
+    public static <T> ChannelConfig kafka(String channelName, String topic, String bootstrapServers, String consumerGroup,
+        Class<T> payloadType) {
+        ChannelConfig cfg = new ChannelConfig(Type.KAFKA, channelName);
+        cfg.topic = topic;
+        cfg.bootstrapServers = bootstrapServers;
+        cfg.consumerGroup = consumerGroup;
+        return cfg;
+    }
+
     public static <T> ChannelConfig rabbit(String channelName, String exchange, String routingKey, String host, Integer port,
         String username,
         String password, Class<T> payloadType) {
@@ -51,6 +60,7 @@ public class ChannelConfig {
     // Kafka specific
     private String topic;
     private String bootstrapServers;
+    private String consumerGroup;
 
     private ChannelConfig(Type type, String channelName) {
         System.out.println("Creating channel config for channel: " + channelName + " of type: " + type);

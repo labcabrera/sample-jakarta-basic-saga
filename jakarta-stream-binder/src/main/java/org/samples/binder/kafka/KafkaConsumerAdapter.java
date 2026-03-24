@@ -37,13 +37,14 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
     public KafkaConsumerAdapter(ChannelConfig cfg, Class<T> payloadType) {
         this.topic = cfg.getTopic();
         this.payloadType = payloadType;
+        String consumerGroup = cfg.getConsumerGroup() != null ? cfg.getConsumerGroup() : "group-" + UUID.randomUUID();
 
         log.info("Creating KafkaConsumerAdapter for channel='{}' topic='{}' bootstrapServers='{}' payload={}",
             cfg.getChannelName(), cfg.getTopic(), cfg.getBootstrapServers(), payloadType);
 
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cfg.getBootstrapServers());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "group-" + UUID.randomUUID());
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");

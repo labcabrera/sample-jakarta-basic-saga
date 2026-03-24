@@ -31,6 +31,7 @@ public class ConsumerFactory {
             channelName,
             config.getValue(prefix + "topic", String.class),
             getValue(prefix + "bootstrap.servers", "messaging.channels.kafka.bootstrap.servers", String.class),
+            getValue(prefix + "consumer-group", "messaging.channels.kafka.consumer-group", String.class),
             payloadType);
         case "rabbitmq" -> ChannelConfig.rabbit(
             channelName,
