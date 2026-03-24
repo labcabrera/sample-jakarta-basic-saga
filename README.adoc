@@ -129,6 +129,33 @@ Esto permitirá definir los consumidores y productores del siguiente modo:
     private Consumer<ResultadoCreacionExpedienteDto> consumer;
 ----
 
+Posteriormente en la configuración del binder asociaremos cada canal a un productor o consumidor concreto:
+
+[source,properties]
+----
+messaging.channels.rabbit.host=localhost
+messaging.channels.rabbit.port=5672
+messaging.channels.rabbit.username=admin
+messaging.channels.rabbit.password=admin
+
+messaging.channels.kafka.bootstrap.servers=sample-kafka-broker:9092
+
+# Productores
+messaging.channels.creacion-expediente.type=rabbitmq
+messaging.channels.creacion-expediente.exchange=expedientes
+messaging.channels.creacion-expediente.routing-key=creacion-expediente
+
+messaging.channels.creacion-expediente-alerta.type=kafka
+messaging.channels.creacion-expediente-alerta.topic=creacion-expediente-alerta-topic
+
+# Consumidores
+messaging.channels.creacion-expediente-ok.type=rabbitmq
+messaging.channels.creacion-expediente-ok.queue=creacion-expediente-ok-cola
+
+messaging.channels.creacion-expediente-ko.type=rabbitmq
+messaging.channels.creacion-expediente-ko.queue=creacion-expediente-ko-cola
+----
+
 ### CQRS
 
 Para la gestión de los expedientes se ha optado por una arquitectura CQRS, con un repositorio JPA para la parte de consulta y un repositorio basado en eventos para la parte de comandos.
@@ -146,14 +173,3 @@ Esta es una implementación mínima de CQRS, sin separación de modelos ni bases
 
 * RabbiMQ Admin Console: http://127.0.0.1:15672/
 * Kafka UI Admin Console: http://127.0.0.1:8091/
-
-### OpenTelemetry
-
-Para arrancar el OpenTelemetry Collector:
-
-[source,bash]
-----
-docker run --rm -p 4317:4317 -p 4318:4318 otel/opentelemetry-collector:latest
-----
-
-

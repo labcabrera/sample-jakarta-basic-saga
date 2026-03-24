@@ -1,9 +1,7 @@
-version: "3.8"
-
 services:
   sample-rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq
+    container_name: sample-rabbitmq
     restart: unless-stopped
     ports:
       - "5672:5672"
@@ -56,6 +54,13 @@ services:
       AUTH_TYPE: "LOGIN_FORM"
       SPRING_SECURITY_USER_NAME: admin
       SPRING_SECURITY_USER_PASSWORD: admin
+
+  sample-opentelemetry-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: sample-opentelemetry-collector
+    ports:
+      - "4317:4317"
+      - "4318:4318"
 
 volumes:
   sample-rabbitmq-data:
