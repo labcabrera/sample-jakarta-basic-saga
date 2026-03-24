@@ -1,0 +1,143 @@
+# Sample Jakarta Basic SAGA
+
+Ejemplo de implementación SAGA utilizando Jakarta EE.
+
+La aplicación consta de dos microservicios:
+
+* _sample-app_: aplicación principal que expone una API REST para gestionar expedientes y generar alertas.
+* _sample-worker_: worker que consume eventos para procesar expedientes.
+
+Ambos microservicios están basados en WildFly usando el formato bootable jar, lo que permite ejecutarlos de forma independiente sin necesidad de un servidor de aplicaciones.
+
+## Ejecución
+
+Compilaremos usando:
+
+[source,bash]
+----
+mvn clean install -DskipTests
+----
+
+En primer lugar levantaremos RabbitMQ y Kafka utilizando Docker compose:
+
+[source,bash]
+----
+docker compose up -d
+----
+
+### API
+
+Iniciar la API REST:
+
+[source,bash]
+----
+java -Djboss.http.port=8080 \
+  -Djboss.management.http.port=9990 -jar \
+  sample-app/target/sample-app-bootable.jar
+----
+
+### Worker
+
+Inicial el worker:
+
+[source,bash]
+----
+java -Djboss.http.port=8081 \
+  -Djboss.management.http.port=9991 \
+  -jar sample-worker/target/sample-worker-bootable.jar
+----
+
+### Pruebas
+
+Para crear un expediente:
+
+[source,bash]
+----
+curl -v -X POST http://127.0.0.1:8080/sample-app/expedientes \
+  -H "Content-Type: application/json" \
+  -d '{"nombre": "John", "apellido1": "Doe", "apellido2": "Smith", "codigo": "EXP123"}'
+----
+
+TIP: Para forzar un error en la creación de expediente que fuerce el proceso de compensación
+podemos establecer _"codigo": "ERROR"_ en el payload.
+
+Para consultar los expedientes creados:
+
+[source,bash]
+----
+curl -v http://127.0.0.1:8080/sample-app/expedientes
+----
+
+## Implementación
+
+### Binder
+
+Se ha optado por una configuración de Binder basada en anotaciones manteniendo la independencia de los
+consumidores y productores respecto a la infraestructura de mensajería.
+
+La estrategia de binding se ha basdado en asociar a cada consumidor/productor un canal específico, lo
+que permite una mayor flexibilidad a la hora de configurar la infraestructura de mensajería.
+
+Para el consumo y el envio de mensajes se han definido las interfaces:
+
+[source,java]
+----
+public interface Consumer<T> extends AutoCloseable {
+
+   CompletionStage<Message<T>> receive();
+
+    void subscribe(java.util.function.Consumer<Message<T>> handler);
+
+    void close();
+}
+----
+
+[source,java]
+----
+public interface Producer<T> extends AutoCloseable {
+
+    CompletionStage<SendResult> send(T payload);
+
+    CompletionStage<SendResult> send(Message<T> message);
+
+    @Override
+    void close();
+}
+----
+
+Esto permitirá definir los consumidores y productores del siguiente modo:
+
+[source,java]
+----
+    @Inject
+    @Channel("creacion-expediente")
+    private Producer<Expediente> eventProducer;
+
+    @Inject
+    @Channel("creacion-expediente-ko")
+    private Consumer<ResultadoCreacionExpedienteDto> consumer;
+----
+
+### CQRS
+
+Para la gestión de los expedientes se ha optado por una arquitectura CQRS, con un repositorio JPA para la parte de consulta y un repositorio basado en eventos para la parte de comandos.
+
+Esta es una implementación mínima de CQRS, sin separación de modelos ni bases de datos, pero que permite ilustrar el concepto de forma sencilla.
+
+## Notas
+
+### Consolas de administración de RabbitMQ y Kafka
+
+* RabbiMQ Admin Console: http://127.0.0.1:15672/
+* Kafka UI Admin Console: http://127.0.0.1:8091/
+
+### OpenTelemetry
+
+Para arrancar el OpenTelemetry Collector:
+
+[source,bash]
+----
+docker run --rm -p 4317:4317 -p 4318:4318 otel/opentelemetry-collector:latest
+----
+
+

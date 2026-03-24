@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  sample-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - sample-rabbitmq-data:/var/lib/rabbitmq
+
+  sample-kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: sample-kafka-broker
+    container_name: sample-kafka-broker
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://sample-kafka-broker:9092,PLAINTEXT_HOST://localhost:9093"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093,CONTROLLER://0.0.0.0:9094"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@sample-kafka-broker:9094"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_JMX_PORT: 9998
+      KAFKA_JMX_HOSTNAME: localhost
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    volumes:
+      - sample-kafka-data:/var/lib/kafka/data
+
+  sample-kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: sample-kafka-ui
+    depends_on:
+      - sample-kafka
+    ports:
+      - "8091:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: sample-kafka-broker:9092
+      KAFKA_CLUSTERS_0_READONLY: false
+      AUTH_TYPE: "LOGIN_FORM"
+      SPRING_SECURITY_USER_NAME: admin
+      SPRING_SECURITY_USER_PASSWORD: admin
+
+volumes:
+  sample-rabbitmq-data:
+    driver: local
+  sample-kafka-data:
+    driver: local
