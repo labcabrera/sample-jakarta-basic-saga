@@ -174,7 +174,7 @@ Esta es una implementación mínima de CQRS, sin separación de modelos ni bases
 * Registro automático de exchange/queue y topics para no hacerlo manualmente.
 * Reconexión automática en caso de fallo de la conexión con la infraestructura de mensajería.
 * Configuracion sobre el tipo de serialización a utilizar (JSON, Avro, Protobuf, etc).
-* Consideraciones de aplicar patron Outbox.
+* Consideraciones de aplicar patron Outbox y persistir los eventos antes del envío al broker.
 
 ## Notas
 
