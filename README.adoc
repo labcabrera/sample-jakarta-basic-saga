@@ -9,6 +9,11 @@ La aplicación consta de dos microservicios:
 
 Ambos microservicios están basados en WildFly usando el formato bootable jar, lo que permite ejecutarlos de forma independiente sin necesidad de un servidor de aplicaciones.
 
+Estos microservicios utilizan las librerías compartidas:
+
+* _jakarta-stream-binder_: librería de abstracción para la integración con sistemas de mensajería (Kafka y RabbitMQ en este ejemplo).
+* _jakarta-cqts_: implementación básica de CQRS para integrar el tratamiento de eventos.
+
 ## Ejecución
 
 Compilaremos usando:
