@@ -167,29 +167,26 @@ algo como:
 spring:
   cloud:
     stream:
-      source: foo;bar
-      function:
-        definition: foo;bar
       bindings:
-        processPersonModificationResult-in-0:
-          destination: foo.exchange
+        creacionExpedienteOk-in-0:
+          destination: expedientes
           consumer:
             concurrency: 10
             max-attempts: 1
           group: person-modification-result
-        sendPersonModificationNotification-out-0:
+        enviarAlertaErrorExpediente-out-0:
           destination: bar.exchange
       rabbit:
         bindings:
-          processPersonModificationResult-in-0:
+          creacionExpedienteOk-in-0:
             consumer:
-              bindingRoutingKey: person-modification
-          sendPersonModificationNotification-out-0:
+              bindingRoutingKey: creacion-expediente-ok
+          creacionExpedienteKo-in-0:
+            consumer:
+              bindingRoutingKey: creacion-expediente-ko
+          enviarAlertaErrorExpediente-out-0:
             producer:
-              routingKeyExpression: keyB
-          processPersonModificationResult-out-0:
-            producer:
-              routingKeyExpression: keyA
+              routingKeyExpression: creacion-expediente
 ----
 
 ### CQRS
