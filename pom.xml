@@ -20,15 +20,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <kafka.version>3.9.2</kafka.version>
+        <rabbitmq.version>5.16.0</rabbitmq.version>
         <jakarta.platform.version>10.0.0</jakarta.platform.version>
         <jackson.version>2.15.2</jackson.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <wildfly.plugin.version>5.1.5.Final</wildfly.plugin.version>
-        <wildfly.version>38.0.0.Final</wildfly.version>
         <lombok.version>1.18.26</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
-        <kafka.version>3.9.2</kafka.version>
-        <rabbitmq.version>5.16.0</rabbitmq.version>
+        <wildfly.plugin.version>5.1.5.Final</wildfly.plugin.version>
+        <wildfly.version>38.0.0.Final</wildfly.version>
     </properties>
 
     <dependencies>
