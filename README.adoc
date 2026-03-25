@@ -213,6 +213,7 @@ su única responsabilidad será la de transformar los objetos de entrada y crear
 * Configuracion sobre el tipo de serialización a utilizar (JSON, Avro, Protobuf, etc) o tipo de compresión utilizada.
 * Consideraciones de aplicar patron Outbox y persistir los eventos antes del envío al broker.
 * Configuración para propagación de contexto de seguridad a través de los mensajes.
+* Separación de la libreria en librerías específicas del binder y una común con las interfaces y clases compartidas.
 
 ## Notas
 
