@@ -207,10 +207,12 @@ su única responsabilidad será la de transformar los objetos de entrada y crear
 ## TODO
 
 * Implementación de gestión de errores en los binders con politicas de reintentos y tratamiento customizado de excepciones.
+* Configuración Dlq / Tlq para mensajes que no se han podido procesar.
 * Registro automático de exchange/queue y topics para no hacerlo manualmente.
 * Reconexión automática en caso de fallo de la conexión con la infraestructura de mensajería.
-* Configuracion sobre el tipo de serialización a utilizar (JSON, Avro, Protobuf, etc).
+* Configuracion sobre el tipo de serialización a utilizar (JSON, Avro, Protobuf, etc) o tipo de compresión utilizada.
 * Consideraciones de aplicar patron Outbox y persistir los eventos antes del envío al broker.
+* Configuración para propagación de contexto de seguridad a través de los mensajes.
 
 ## Notas
 
