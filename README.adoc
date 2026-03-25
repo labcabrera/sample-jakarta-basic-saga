@@ -218,8 +218,12 @@ su única responsabilidad será la de transformar los objetos de entrada y crear
 
 Si bien no es necesario para implementar un patrón SAGA donde simplemente podemos enviar los mensajes al broker, aplicar este patrón tiene varias ventajas:
 
-* Garantiza la consistencia entre la base de datos y el broker de mensajes, ya que los eventos se almacenan en la base de datos antes de ser enviados al broker.
+* Garantiza la consistencia entre la base de datos y el broker de mensajes, ya que los eventos se almacenan en la base de datos antes de ser enviados al broker. La actualización del objeto de negocio se hace en la misma transacción que el almacenamiento del evento lo que garatiza que la información de los mensajes siempre está alineada con el estado de la base de datos.
+
 * Permite implementar políticas de reintentos y gestión de errores de forma más sencilla, ya que los eventos se pueden marcar como enviados o con error en la base de datos.
+
+* Aisla de los problemas que pudiera haber de comunicación con el broker de mensajes en caso de caída.
+
 * Facilita la auditoría y el seguimiento de los eventos, ya que se pueden almacenar metadatos adicionales en la base de datos junto con el evento.
 
 Este caso último de auditoría es relevante ya que si al final tenemos N entidades del dominio
