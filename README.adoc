@@ -7,7 +7,7 @@ La aplicación consta de dos microservicios:
 * _sample-app_: aplicación principal que expone una API REST para gestionar expedientes y generar alertas.
 * _sample-worker_: worker que consume eventos para procesar expedientes.
 
-Ambos microservicios están basados en WildFly usando el formato bootable jar, lo que permite ejecutarlos de forma independiente sin necesidad de un servidor de aplicaciones.
+Ambos microservicios están basados en WildFly usando el formato bootable jar lo que permite ejecutarlos sin necesidad de un servidor de aplicaciones externo.
 
 Estos microservicios utilizan las librerías compartidas:
 
@@ -85,7 +85,7 @@ Para consultar los expedientes creados:
 curl -v http://127.0.0.1:8080/sample-app/expedientes
 ----
 
-## Implementación
+## ImplementaciónDe este modo la estructura interna de la aplicación hace que tengas separad
 
 ### Binder
 
@@ -124,11 +124,11 @@ Esto permitirá definir los consumidores y productores del siguiente modo:
 ----
     @Inject
     @Channel("creacion-expediente")
-    private Producer<Expediente> eventProducer;
+    private MessageProducer<Expediente> eventProducer;
 
     @Inject
     @Channel("creacion-expediente-ko")
-    private Consumer<ResultadoCreacionExpedienteDto> consumer;
+    private MessageConsumer<ResultadoCreacionExpedienteDto> consumer;
 ----
 
 Posteriormente en la configuración del binder asociaremos cada canal a un productor o consumidor concreto:
@@ -139,7 +139,6 @@ messaging.channels.rabbit.host=localhost
 messaging.channels.rabbit.port=5672
 messaging.channels.rabbit.username=admin
 messaging.channels.rabbit.password=admin
-
 messaging.channels.kafka.bootstrap.servers=sample-kafka-broker:9092
 
 # Productores
@@ -164,6 +163,15 @@ Para la gestión de los expedientes se ha optado por una arquitectura CQRS, con 
 
 Esta es una implementación mínima de CQRS, sin separación de modelos ni bases de datos, pero que permite ilustrar el concepto de forma sencilla.
 
+De este modo en el ejemplo podemos usar el concepto de _interfaces_ de arquitectura hexagonal
+para definir todos los métodos en los que la aplicación recibe peticiones externas, ya sean
+REST o eventos, en esa capa transformar la petición a un comando o una consulta y ejecutarla
+en un bus para tener desacoplada la lógica de negocio del transporte de los mensajes.
+
+De este modo aislamos la lógica de negocio de la infraestructura de mensajería y de la API REST, lo que facilita el mantenimiento y la evolución de la aplicación. Además haremos que
+el código de los controladores de APIs sean equivalentes a los controladores de eventos ya que
+su única responsabilidad será la de transformar los objetos de entrada y crear los comandos o queries correspondientes.
+
 ## TODO
 
 * Implementación de gestión de errores en los binders con politicas de reintentos y tratamiento customizado de excepciones.
@@ -173,6 +181,18 @@ Esta es una implementación mínima de CQRS, sin separación de modelos ni bases
 * Consideraciones de aplicar patron Outbox y persistir los eventos antes del envío al broker.
 
 ## Notas
+
+### Consideraciones sobre el patrón Outbox
+
+Si bien no es necesario para implementar un patrón SAGA donde simplemente podemos enviar los mensajes al broker, aplicar este patrón tiene varias ventajas:
+
+* Garantiza la consistencia entre la base de datos y el broker de mensajes, ya que los eventos se almacenan en la base de datos antes de ser enviados al broker.
+* Permite implementar políticas de reintentos y gestión de errores de forma más sencilla, ya que los eventos se pueden marcar como enviados o con error en la base de datos.
+* Facilita la auditoría y el seguimiento de los eventos, ya que se pueden almacenar metadatos adicionales en la base de datos junto con el evento.
+
+Este caso último de auditoría es relevante ya que si al final tenemos N entidades del dominio
+que funcionan como una máquina de estados, para saber el estado de todas las transacciones en curso es necesario una consulta para cada una de las entidades.
+Aplicando el patrón Outbox podemos almacenar toda la información relevante de cada evento en la base de datos y así poder consultar el estado de todas las transacciones con una única consulta a la base de datos.
 
 ### Consolas de administración de RabbitMQ y Kafka
 
