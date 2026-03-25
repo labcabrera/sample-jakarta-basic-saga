@@ -1,8 +1,8 @@
 # Sample Jakarta Basic SAGA
 
-Ejemplo de implementación SAGA coreografiada utilizando Jakarta EE sin dependencias adicionales.
+Ejemplo de implementación SAGA coreografiada utilizando Jakarta EE sin dependencias adicionales. La aplicación define una librería básica para hacer el binding con sistemas de mensajería (Kafka y RabbitMQ en este ejemplo) para tener una interface independiente de la implementación a la hora de consumir y publicar los eventos.
 
-La aplicación consta de dos microservicios:
+Este ejemplo consta de dos microservicios:
 
 * _sample-app_: aplicación principal que expone una API REST para gestionar expedientes y generar alertas.
 * _sample-worker_: worker que consume eventos para procesar expedientes.
@@ -12,13 +12,13 @@ Ambos microservicios están basados en WildFly usando el formato bootable jar lo
 Estos microservicios utilizan las librerías compartidas:
 
 * _jakarta-stream-binder_: librería de abstracción para la integración con sistemas de mensajería (Kafka y RabbitMQ en este ejemplo).
-* _jakarta-cqts_: implementación básica de CQRS para integrar el tratamiento de eventos.
+* _jakarta-cqrs_: implementación básica de CQRS para integrar el tratamiento de eventos.
 
 Adicionalmente se utilizan las dependencias:
 
 * _mapstruct_: para el mapeo entre entidades y DTOs.
 * _lombok_: para reducir el código boilerplate.
-* _jackson_: para la serialización y deserialización de objetos JSON.
+* _jackson_: para la serialización y deserialización de objetos JSON en el envío de mensajes.
 
 ## Flujo de la aplicación
 
@@ -131,6 +131,8 @@ Esto permitirá definir los consumidores y productores del siguiente modo:
     private MessageConsumer<ResultadoCreacionExpedienteDto> consumer;
 ----
 
+En ambos casos podemos trabajar directamente con el objeto de dominio cuando no queremos por ejemplo incluir metadatos adicionales en el mensaje, o con un objeto de tipo `Message<E>` que permite personalizar cabeceras adicionales, por ejemplo para incluir un _correlationId_ personalizado (por defecto si es un `DomainEvent` obtiene el _correlationId_ del _id_ del evento) o información de autenticación en el caso de que queramos propagar la identidad del usuario que ha iniciado la transacción a través de los mensajes.
+
 Posteriormente en la configuración del binder asociaremos cada canal a un productor o consumidor concreto:
 
 [source,properties]
@@ -155,6 +157,39 @@ messaging.channels.creacion-expediente-ok.queue=creacion-expediente-ok-cola
 
 messaging.channels.creacion-expediente-ko.type=rabbitmq
 messaging.channels.creacion-expediente-ko.queue=creacion-expediente-ko-cola
+----
+
+Se ha optado por con una configuración similar a la de Spring Clod Stream que definiría
+algo como:
+
+[source,yaml]
+----
+spring:
+  cloud:
+    stream:
+      source: foo;bar
+      function:
+        definition: foo;bar
+      bindings:
+        processPersonModificationResult-in-0:
+          destination: foo.exchange
+          consumer:
+            concurrency: 10
+            max-attempts: 1
+          group: person-modification-result
+        sendPersonModificationNotification-out-0:
+          destination: bar.exchange
+      rabbit:
+        bindings:
+          processPersonModificationResult-in-0:
+            consumer:
+              bindingRoutingKey: person-modification
+          sendPersonModificationNotification-out-0:
+            producer:
+              routingKeyExpression: keyB
+          processPersonModificationResult-out-0:
+            producer:
+              routingKeyExpression: keyA
 ----
 
 ### CQRS
