@@ -1,8 +1,11 @@
 package org.samples.binder.producer;
 
+import java.util.Optional;
+
 import org.samples.binder.BinderConfiguration;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageProducer;
+import org.samples.binder.ChannelConfig.BrokerType;
 import org.samples.binder.kafka.KafkaProducerAdapter;
 import org.samples.binder.rabbitmq.RabbitProducerAdapter;
 
@@ -15,27 +18,13 @@ public class ProducerFactory {
 
     private final BinderConfiguration config = new BinderConfiguration();
 
-    public <T> ChannelConfig loadChannelConfig(String channelName, Class<T> payloadType) {
-        log.info("Cargando configuración para canal {} con payload {}", channelName, payloadType.getName());
-
+    public <T> ChannelConfig loadChannelConfig(String channelName) {
+        log.info("Cargando configuración para canal {}", channelName);
         String prefix = "messaging.channels." + channelName + ".";
         String type = config.getValue(prefix + "type", String.class);
-
         return switch (type.toLowerCase()) {
-        case "kafka" -> ChannelConfig.kafka(
-            channelName,
-            config.getValue(prefix + "topic", String.class),
-            getValue(prefix + "bootstrap.servers", "messaging.channels.kafka.bootstrap.servers", String.class),
-            payloadType);
-        case "rabbitmq" -> ChannelConfig.rabbit(
-            channelName,
-            config.getValue(prefix + "exchange", String.class),
-            config.getValue(prefix + "routing-key", String.class),
-            getValue(prefix + "host", "messaging.channels.rabbit.host", String.class),
-            getValue(prefix + "port", "messaging.channels.rabbit.port", Integer.class),
-            getValue(prefix + "username", "messaging.channels.rabbit.username", String.class),
-            getValue(prefix + "password", "messaging.channels.rabbit.password", String.class),
-            payloadType);
+        case "kafka" -> buildKafkaConfig(channelName);
+        case "rabbitmq" -> buildRabbitConfig(channelName);
         default -> throw new IllegalArgumentException(
             "Tipo de canal no soportado para " + channelName + ": " + type);
         };
@@ -48,15 +37,55 @@ public class ProducerFactory {
         };
     }
 
+    private ChannelConfig buildKafkaConfig(String channelName) {
+        String prefix = "messaging.channels." + channelName + ".";
+        ChannelConfig channelConfig = ChannelConfig.builder()
+            .type(BrokerType.KAFKA)
+            .channelName(channelName)
+            .topic(config.getValue(prefix + "topic", String.class))
+            .bootstrapServers(getValue(prefix + "bootstrap.servers", "messaging.channels.kafka.bootstrap.servers", String.class))
+            .build();
+        return applySharedConfig(channelConfig, channelName);
+    }
+
+    private ChannelConfig buildRabbitConfig(String channelName) {
+        String prefix = "messaging.channels." + channelName + ".";
+        ChannelConfig channelConfig = ChannelConfig.builder()
+            .type(BrokerType.RABBITMQ)
+            .channelName(channelName)
+            .exchange(config.getValue(prefix + "exchange", String.class))
+            .routingKey(config.getValue(prefix + "routing-key", String.class))
+            .host(getValue(prefix + "host", "messaging.channels.rabbit.host", String.class))
+            .port(getValue(prefix + "port", "messaging.channels.rabbit.port", Integer.class))
+            .username(getValue(prefix + "username", "messaging.channels.rabbit.username", String.class))
+            .password(getValue(prefix + "password", "messaging.channels.rabbit.password", String.class))
+            .build();
+        return applySharedConfig(channelConfig, channelName);
+    }
+
+    //TODO
+    private ChannelConfig applySharedConfig(ChannelConfig config, String channelName) {
+        Optional<Integer> maxAttempts = getOptionalValue(
+            "messaging.channels." + channelName + ".max-attempts",
+            "messaging.channels.max-attempts", Integer.class);
+        if (maxAttempts.isPresent()) {
+            config.setMaxAttempts(maxAttempts.get());
+        }
+        return config;
+    }
+
     private <T> T getValue(String key, String altKey, Class<T> clazz) {
+        Optional<T> value = getOptionalValue(key, altKey, clazz);
+        return value.orElseThrow(() -> new IllegalArgumentException("Missing configuration for keys: " + key + " or " + altKey));
+    }
+
+    private <T> Optional<T> getOptionalValue(String key, String altKey, Class<T> clazz) {
         if (config.containsKey(key)) {
-            return config.getValue(key, clazz);
+            return Optional.of(config.getValue(key, clazz));
         }
         else if (config.containsKey(altKey)) {
-            return config.getValue(altKey, clazz);
+            return Optional.of(config.getValue(altKey, clazz));
         }
-        else {
-            throw new IllegalArgumentException("Missing configuration for keys: " + key + " or " + altKey);
-        }
+        return Optional.empty();
     }
 }

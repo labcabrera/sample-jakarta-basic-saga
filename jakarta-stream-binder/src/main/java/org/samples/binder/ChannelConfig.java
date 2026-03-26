@@ -1,12 +1,20 @@
 package org.samples.binder;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
+@Slf4j
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ChannelConfig {
 
     public static <T> ChannelConfig kafka(String channelName, String topic, String bootstrapServers, Class<T> payloadType) {
-        ChannelConfig cfg = new ChannelConfig(Type.KAFKA, channelName);
+        ChannelConfig cfg = new ChannelConfig(BrokerType.KAFKA, channelName);
         cfg.topic = topic;
         cfg.bootstrapServers = bootstrapServers;
         return cfg;
@@ -14,29 +22,16 @@ public class ChannelConfig {
 
     public static <T> ChannelConfig kafka(String channelName, String topic, String bootstrapServers, String consumerGroup,
         Class<T> payloadType) {
-        ChannelConfig cfg = new ChannelConfig(Type.KAFKA, channelName);
+        ChannelConfig cfg = new ChannelConfig(BrokerType.KAFKA, channelName);
         cfg.topic = topic;
         cfg.bootstrapServers = bootstrapServers;
         cfg.consumerGroup = consumerGroup;
         return cfg;
     }
 
-    public static <T> ChannelConfig rabbit(String channelName, String exchange, String routingKey, String host, Integer port,
-        String username,
-        String password, Class<T> payloadType) {
-        ChannelConfig cfg = new ChannelConfig(Type.RABBITMQ, channelName);
-        cfg.exchange = exchange;
-        cfg.routingKey = routingKey;
-        cfg.host = host;
-        cfg.port = port;
-        cfg.username = username;
-        cfg.password = password;
-        return cfg;
-    }
-
     public static <T> ChannelConfig rabbit(String channelName, String queue, String host, Integer port, String username,
         String password, Class<T> payloadType) {
-        ChannelConfig cfg = new ChannelConfig(Type.RABBITMQ, channelName);
+        ChannelConfig cfg = new ChannelConfig(BrokerType.RABBITMQ, channelName);
         cfg.queue = queue;
         cfg.host = host;
         cfg.port = port;
@@ -46,7 +41,8 @@ public class ChannelConfig {
     }
 
     private String channelName;
-    private Type type;
+    private BrokerType type;
+    private Integer maxAttempts;
 
     // RabbitMQ specific
     private String exchange;
@@ -62,13 +58,13 @@ public class ChannelConfig {
     private String bootstrapServers;
     private String consumerGroup;
 
-    private ChannelConfig(Type type, String channelName) {
-        System.out.println("Creating channel config for channel: " + channelName + " of type: " + type);
+    private ChannelConfig(BrokerType type, String channelName) {
+        log.debug("Creating channel config for channel '{}'' of type {}", channelName, type);
         this.type = type;
         this.channelName = channelName;
     }
 
-    public enum Type {
+    public enum BrokerType {
         KAFKA, RABBITMQ
     }
 

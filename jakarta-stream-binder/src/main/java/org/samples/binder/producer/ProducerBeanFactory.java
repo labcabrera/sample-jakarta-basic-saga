@@ -28,19 +28,15 @@ public class ProducerBeanFactory {
     @Channel("")
     public <T> MessageProducer<T> produceProducer(InjectionPoint injectionPoint) {
         log.info("Creating Producer for {}", injectionPoint);
-
         Channel channel = injectionPoint.getAnnotated().getAnnotation(Channel.class);
         if (channel == null) {
             throw new IllegalStateException("Missing @Channel in injection point " + injectionPoint);
         }
-
         log.info("Resolving channel {}", channel.value());
-
         String channelName = channel.value();
         Class<T> payloadType = resolvePayloadType(injectionPoint);
-
         return registry.getOrCreate(channelName, payloadType, () -> {
-            ChannelConfig config = factory.loadChannelConfig(channelName, payloadType);
+            ChannelConfig config = factory.loadChannelConfig(channelName);
             return factory.createProducer(config, payloadType);
         });
     }
