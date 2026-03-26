@@ -1,5 +1,6 @@
 package org.samples.saga.outbox;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OutboxRepository {
@@ -14,7 +15,7 @@ public interface OutboxRepository {
 
     void markSent(String id, String messageId);
 
-    void markFailed(String id, int attempts, java.util.Date nextAttemptAt);
+    void markFailed(String id, int attempts, LocalDateTime nextAttemptAt);
 
     void markDlq(String id, int attempts, String reason);
 

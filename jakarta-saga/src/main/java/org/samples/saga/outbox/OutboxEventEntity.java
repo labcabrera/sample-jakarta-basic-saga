@@ -1,10 +1,14 @@
 package org.samples.saga.outbox;
 
 import java.util.Date;
+import java.util.UUID;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -34,6 +38,7 @@ public class OutboxEventEntity {
     @Lob
     private String payload;
 
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     private int attempts;
@@ -53,6 +58,19 @@ public class OutboxEventEntity {
 
     public static enum Status {
         PENDING, SENDING, SENT, FAILED, DLQ
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+        if (createdAt == null) {
+            createdAt = new Date();
+        }
+        if (status == null) {
+            status = Status.PENDING;
+        }
     }
 
 }

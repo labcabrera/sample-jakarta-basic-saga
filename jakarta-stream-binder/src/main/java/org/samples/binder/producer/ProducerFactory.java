@@ -64,7 +64,6 @@ public class ProducerFactory {
         return applySharedConfig(channelConfig, channelName);
     }
 
-    //TODO
     private ChannelConfig applySharedConfig(ChannelConfig config, String channelName) {
         Optional<Integer> maxAttempts = getOptionalValue(
             "messaging.channels." + channelName + ".max-attempts",

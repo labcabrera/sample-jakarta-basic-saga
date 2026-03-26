@@ -63,8 +63,7 @@ public class RabbitProducerAdapter<T> implements MessageProducer<T> {
             return send((Message<T>) payload);
         }
         String key = null;
-        if (payload instanceof DomainEvent) {
-            DomainEvent event = (DomainEvent) payload;
+        if (payload instanceof DomainEvent event) {
             key = event.getId();
         }
         else {
@@ -81,7 +80,6 @@ public class RabbitProducerAdapter<T> implements MessageProducer<T> {
             byte[] body = jsonSerializer.serialize(message.payload());
             AMQP.BasicProperties props = buildProperties(message);
             channel.basicPublish(exchange == null ? "" : exchange, routingKey == null ? "" : routingKey, props, body);
-            // wait for confirm with a small timeout
             boolean ok = channel.waitForConfirms(CONFIRMATION_TIMEOUT_MS);
             if (ok) {
                 log.info("Message sent to RabbitMQ channel '{}', exchange='{}', routingKey='{}'", destination, exchange, routingKey);
@@ -105,8 +103,6 @@ public class RabbitProducerAdapter<T> implements MessageProducer<T> {
             .messageId(UUID.randomUUID().toString())
             .timestamp(new Date())
             .deliveryMode(DELIVERY_MODE_PERSISTENT);
-
-        // if Message has a key use it as correlationId for traceability
         if (message.key() != null) {
             log.info("Setting correlationId for message with key '{}'", message.key());
             builder.correlationId(message.key());

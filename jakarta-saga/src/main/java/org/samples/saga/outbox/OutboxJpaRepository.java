@@ -1,8 +1,8 @@
 package org.samples.saga.outbox;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import org.samples.saga.outbox.OutboxEventEntity.Status;
 
@@ -43,15 +43,6 @@ public class OutboxJpaRepository implements OutboxRepository {
 
     @Override
     public void save(OutboxEventEntity event) {
-        if (event.getId() == null) {
-            event.setId(UUID.randomUUID().toString());
-        }
-        if (event.getCreatedAt() == null) {
-            event.setCreatedAt(new Date());
-        }
-        if (event.getStatus() == null) {
-            event.setStatus(Status.PENDING);
-        }
         em.persist(event);
     }
 
@@ -77,7 +68,7 @@ public class OutboxJpaRepository implements OutboxRepository {
     }
 
     @Override
-    public void markFailed(String id, int attempts, Date nextAttemptAt) {
+    public void markFailed(String id, int attempts, LocalDateTime nextAttemptAt) {
         String jpql = "UPDATE OutboxEventEntity e SET e.status = :status, e.attempts = :attempts, e.nextAttemptAt = :nextAttemptAt WHERE e.id = :id";
         em.createQuery(jpql)
             .setParameter("status", Status.FAILED)
