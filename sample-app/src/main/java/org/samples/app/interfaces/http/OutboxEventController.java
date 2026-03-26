@@ -2,7 +2,8 @@ package org.samples.app.interfaces.http;
 
 import java.util.List;
 
-import org.samples.saga.outbox.OutboxEventEntity;
+import org.samples.app.interfaces.http.dto.OutboxEventDto;
+import org.samples.app.interfaces.http.mappers.OutboxEventDtoMapper;
 import org.samples.saga.outbox.OutboxRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -27,12 +28,18 @@ public class OutboxEventController {
     @Inject
     private OutboxRepository outboxRepository;
 
+    @Inject
+    private OutboxEventDtoMapper mapper;
+
     @GET
     public Response findByRsql(
         @DefaultValue("") @QueryParam("q") String rsql,
         @DefaultValue("0") @QueryParam("page") int page,
         @DefaultValue("10") @QueryParam("size") int size) {
-        List<OutboxEventEntity> events = outboxRepository.findAll(page, size);
+        List<OutboxEventDto> events = outboxRepository
+            .findAll(page, size)
+            .stream().map(mapper::toDto)
+            .toList();
         return Response.ok(events).build();
     }
 }
