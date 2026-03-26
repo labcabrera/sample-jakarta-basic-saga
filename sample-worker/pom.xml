@@ -20,7 +20,11 @@
     <dependencies>
         <dependency>
             <groupId>org.samples</groupId>
-            <artifactId>jakarta-stream-binder</artifactId>
+            <artifactId>jakarta-stream-binder-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.samples</groupId>
+            <artifactId>jakarta-stream-binder-rabbit</artifactId>
         </dependency>
         <dependency>
             <groupId>org.samples</groupId>

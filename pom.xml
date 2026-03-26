@@ -11,6 +11,8 @@
 
     <modules>
         <module>jakarta-stream-binder</module>
+        <module>jakarta-stream-binder-kafka</module>
+        <module>jakarta-stream-binder-rabbit</module>
         <module>jakarta-cqrs</module>
         <module>jakarta-saga</module>
         <module>sample-app</module>
@@ -46,6 +48,16 @@
             <dependency>
                 <groupId>org.samples</groupId>
                 <artifactId>jakarta-stream-binder</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.samples</groupId>
+                <artifactId>jakarta-stream-binder-kafka</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.samples</groupId>
+                <artifactId>jakarta-stream-binder-rabbit</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
