@@ -12,6 +12,7 @@
     <modules>
         <module>jakarta-stream-binder</module>
         <module>jakarta-cqrs</module>
+        <module>jakarta-saga</module>
         <module>sample-app</module>
         <module>sample-worker</module>
     </modules>
@@ -53,10 +54,25 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.samples</groupId>
+                <artifactId>jakarta-saga</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>jakarta.platform</groupId>
                 <artifactId>jakarta.jakartaee-api</artifactId>
                 <version>${jakarta.platform.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>

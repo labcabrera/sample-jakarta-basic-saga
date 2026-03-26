@@ -1,4 +1,4 @@
-package org.samples.app.domain.events;
+package org.samples.worker.domain.events;
 
 import org.samples.binder.DomainEvent;
 
@@ -10,12 +10,12 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ErrorCreacionExpedienteEvent extends DomainEvent {
+public class ExpedienteCreadoKoEvent extends DomainEvent {
 
     private final String error;
 
     @JsonCreator
-    public ErrorCreacionExpedienteEvent(
+    public ExpedienteCreadoKoEvent(
         @JsonProperty("id") String id,
         @JsonProperty("error") String error) {
         super(id);
