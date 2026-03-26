@@ -1,6 +1,6 @@
 package org.samples.saga.outbox;
 
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 public class OutboxJpaRepository implements OutboxRepository {
 
     private static final String PERSISTENCE_UNIT_NAME = "sample-app-pu";
-    private static final String SELECT_PENDING_QUERY = "SELECT e FROM OutboxEventEntity e WHERE e.status = :status AND (e.nextAttemptAt IS NULL OR e.nextAttemptAt <= :now) ORDER BY e.createdAt";
+    private static final String SELECT_PENDING_QUERY = "SELECT e FROM OutboxEventEntity e WHERE e.status IN(:status) AND (e.nextAttemptAt IS NULL OR e.nextAttemptAt <= :now) ORDER BY e.createdAt";
     private static final String SELECT_ALL_QUERY = "SELECT e FROM OutboxEventEntity e ORDER BY e.createdAt";
     private static final String UPDATE_STATE = "UPDATE OutboxEventEntity e SET e.status = :status WHERE e.id = :id AND e.status = :currentStatus";
 
@@ -27,7 +27,7 @@ public class OutboxJpaRepository implements OutboxRepository {
     public List<OutboxEventEntity> findPending(int limit) {
         Date now = new Date();
         return em.createQuery(SELECT_PENDING_QUERY, OutboxEventEntity.class)
-            .setParameter("status", Status.PENDING)
+            .setParameter("status", Arrays.asList(Status.PENDING, Status.FAILED))
             .setParameter("now", now)
             .setMaxResults(limit)
             .getResultList();
@@ -68,10 +68,11 @@ public class OutboxJpaRepository implements OutboxRepository {
     }
 
     @Override
-    public void markFailed(String id, int attempts, LocalDateTime nextAttemptAt) {
+    public void markFailed(String id, int attempts, Date nextAttemptAt) {
         String jpql = "UPDATE OutboxEventEntity e SET e.status = :status, e.attempts = :attempts, e.nextAttemptAt = :nextAttemptAt WHERE e.id = :id";
         em.createQuery(jpql)
-            .setParameter("status", Status.FAILED)
+            // set back to PENDING so dispatcher can claim it for the next attempt
+            .setParameter("status", Status.PENDING)
             .setParameter("attempts", attempts)
             .setParameter("nextAttemptAt", nextAttemptAt)
             .setParameter("id", id)

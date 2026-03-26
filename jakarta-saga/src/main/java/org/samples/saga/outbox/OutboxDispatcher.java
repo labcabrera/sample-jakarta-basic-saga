@@ -1,6 +1,6 @@
 package org.samples.saga.outbox;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -87,6 +87,7 @@ public class OutboxDispatcher {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void handleEvent(OutboxEventEntity e) {
         try {
+            log.info("Handling event {}", e);
             boolean claimed = repository.markSending(e.getId());
             if (!claimed) {
                 return;
@@ -102,18 +103,19 @@ public class OutboxDispatcher {
             log.info("Outbox event {} sent to {} messageId={}", e.getId(), e.getChannel(), messageId);
         }
         catch (Exception ex) {
+            log.error("Failed to dispatch outbox event {}", e.getId(), ex);
             int attempts = e.getAttempts() + 1;
             try {
                 if (attempts >= config.getMaxAttempts()) {
                     repository.markDlq(e.getId(), attempts, ex.getMessage());
-                    log.error("Outbox event {} moved to DLQ after {} attempts, channel={} reason={}",
-                        e.getId(), attempts, e.getChannel(), ex.getMessage(), ex);
+                    log.error("Outbox event {} moved to DLQ after {} attempts, channel={} reason={}", e.getId(), attempts, e.getChannel(),
+                        ex.getMessage());
                 }
                 else {
                     // Exponential backoff (capped)
                     long multiplier = (long) Math.pow(2, attempts - 1);
                     long backoffMs = Math.min(config.getBaseBackoffMs() * multiplier, config.getMaxBackoffMs());
-                    LocalDateTime nextAttempt = LocalDateTime.now().plusNanos(backoffMs);
+                    Date nextAttempt = new Date(System.currentTimeMillis() + backoffMs);
                     repository.markFailed(e.getId(), attempts, nextAttempt);
                     log.warn("Failed to dispatch outbox event {} channel={} attempts={} nextAttempt={} - {}", e.getId(), e.getChannel(),
                         attempts, nextAttempt, ex.getMessage(), ex);

@@ -71,8 +71,10 @@ public class ExpedienteJpaRepository implements ExpedienteRepository {
     public void deleteById(String id) {
         log.info("Borrando expediente: {}", id);
         ExpedienteEntity e = em.find(ExpedienteEntity.class, id);
-        if (e != null)
-            em.remove(e);
+        if (e == null) {
+            throw new NotFoundException("Expediente no encontrado: " + id);
+        }
+        em.remove(e);
     }
 
 }
