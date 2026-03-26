@@ -1,6 +1,6 @@
 package org.samples.binder.rabbitmq;
 
-import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageConsumer;
@@ -28,20 +29,12 @@ public class RabbitConsumerAdapter<T> implements MessageConsumer<T> {
     private final String queue;
     private final Connection connection;
     private final Channel channel;
-    private java.util.function.Consumer<Message<T>> handler;
+    private Consumer<Message<T>> handler;
     private JsonMessageDeserializer jsonDeserializer = new JsonMessageDeserializer();
 
     public RabbitConsumerAdapter(ChannelConfig cfg, Class<T> payloadType) {
         this.queue = cfg.getQueue();
-        log.info("Creating RabbitConsumerAdapter for channel='{}' queue='{}' payload='{}'' host='{}@{}' user='{}@{}'",
-            cfg.getChannelName(),
-            queue,
-            payloadType,
-            cfg.getHost(),
-            cfg.getPort(),
-            cfg.getUsername(),
-            cfg.getPassword());
-
+        log.info("Creating RabbitConsumerAdapter for channel='{}'", cfg.getChannelName());
         try {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost(cfg.getHost());
@@ -53,7 +46,7 @@ public class RabbitConsumerAdapter<T> implements MessageConsumer<T> {
             this.channel.basicQos(PREFETCH_COUNT);
             String consumerTag = channel.basicConsume(queue, false, new DefaultConsumer(channel) {
                 @Override
-                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
+                public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body)
                     throws IOException {
                     T payload = jsonDeserializer.deserialize(body, payloadType);
                     Message<T> msg = new Message<>(payload, properties != null ? properties.getMessageId() : null, Map.of());
@@ -99,13 +92,13 @@ public class RabbitConsumerAdapter<T> implements MessageConsumer<T> {
 
     @Override
     public CompletionStage<Message<T>> receive() {
-        CompletableFuture<Message<T>> fut = new CompletableFuture<>();
-        subscribe(msg -> fut.complete(msg));
-        return fut;
+        CompletableFuture<Message<T>> future = new CompletableFuture<>();
+        subscribe(msg -> future.complete(msg));
+        return future;
     }
 
     @Override
-    public void subscribe(java.util.function.Consumer<Message<T>> handler) {
+    public void subscribe(Consumer<Message<T>> handler) {
         this.handler = handler;
     }
 
