@@ -6,6 +6,7 @@ import org.samples.binder.MessageConsumer;
 import org.samples.binder.ChannelConfig.BrokerType;
 import org.samples.binder.kafka.KafkaConsumerAdapter;
 import org.samples.binder.rabbitmq.RabbitConsumerAdapter;
+import org.samples.binder.rabbitmq.RabbitConnectionManager;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +17,12 @@ public class ConsumerFactory {
 
     private final BinderConfiguration config = new BinderConfiguration();
 
+    @jakarta.inject.Inject
+    private RabbitConnectionManager rabbitConnectionManager;
+
     public <T> MessageConsumer<T> createConsumer(ChannelConfig cfg, Class<T> payloadType) {
         return (MessageConsumer<T>) switch (cfg.getType()) {
-        case RABBITMQ -> new RabbitConsumerAdapter<T>(cfg, payloadType);
+        case RABBITMQ -> new RabbitConsumerAdapter<T>(cfg, payloadType, rabbitConnectionManager);
         case KAFKA -> new KafkaConsumerAdapter<T>(cfg, payloadType);
         };
     }

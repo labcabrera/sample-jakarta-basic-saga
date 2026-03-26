@@ -3,7 +3,6 @@ package org.samples.binder.rabbitmq;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
@@ -37,16 +36,11 @@ public class RabbitConsumerAdapter<T> implements MessageConsumer<T> {
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
     private final JsonMessageDeserializer jsonDeserializer = new JsonMessageDeserializer();
 
-    public RabbitConsumerAdapter(ChannelConfig cfg, Class<T> payloadType) {
+    public RabbitConsumerAdapter(ChannelConfig cfg, Class<T> payloadType, RabbitConnectionManager connectionManager) {
         this.queue = cfg.getQueue();
         log.info("Creating RabbitConsumerAdapter for channel='{}' and queue='{}'", cfg.getChannelName(), queue);
         try {
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost(cfg.getHost());
-            factory.setPort(cfg.getPort());
-            factory.setUsername(cfg.getUsername());
-            factory.setPassword(cfg.getPassword());
-            this.connection = factory.newConnection();
+            this.connection = connectionManager.getConnection(cfg);
             this.channel = connection.createChannel();
             this.channel.basicQos(PREFETCH_COUNT);
             String consumerTag = channel.basicConsume(queue, false, new DefaultConsumer(channel) {
@@ -90,7 +84,7 @@ public class RabbitConsumerAdapter<T> implements MessageConsumer<T> {
                     }
                 }
             });
-            log.info("Rabbit consumer registered: tag='{}' connectedTo='{}:{}'", consumerTag, factory.getHost(), factory.getPort());
+            log.info("Rabbit consumer registered: tag='{}'", consumerTag);
 
         }
         catch (Exception e) {

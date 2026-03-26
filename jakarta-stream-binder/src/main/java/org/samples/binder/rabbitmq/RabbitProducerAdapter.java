@@ -19,7 +19,6 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,18 +35,13 @@ public class RabbitProducerAdapter<T> implements MessageProducer<T> {
     private final Channel channel;
     private final JsonMessageSerializer jsonSerializer = new JsonMessageSerializer();
 
-    public RabbitProducerAdapter(ChannelConfig cfg, Class<T> payloadType) {
+    public RabbitProducerAdapter(ChannelConfig cfg, Class<T> payloadType, RabbitConnectionManager connectionManager) {
         this.exchange = cfg.getExchange();
         this.routingKey = cfg.getRoutingKey();
         this.destination = cfg.getChannelName();
         log.info("Creating RabbitProducerAdapter for channel {}/{} with destination {}", exchange, routingKey, destination);
         try {
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost(cfg.getHost());
-            factory.setPort(cfg.getPort());
-            factory.setUsername(cfg.getUsername());
-            factory.setPassword(cfg.getPassword());
-            this.connection = factory.newConnection();
+            this.connection = connectionManager.getConnection(cfg);
             this.channel = connection.createChannel();
             this.channel.confirmSelect();
         }

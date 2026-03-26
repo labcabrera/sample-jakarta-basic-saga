@@ -8,6 +8,7 @@ import org.samples.binder.MessageProducer;
 import org.samples.binder.ChannelConfig.BrokerType;
 import org.samples.binder.kafka.KafkaProducerAdapter;
 import org.samples.binder.rabbitmq.RabbitProducerAdapter;
+import org.samples.binder.rabbitmq.RabbitConnectionManager;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ProducerFactory {
 
     private final BinderConfiguration config = new BinderConfiguration();
+
+    @jakarta.inject.Inject
+    private RabbitConnectionManager rabbitConnectionManager;
 
     public <T> ChannelConfig loadChannelConfig(String channelName) {
         log.info("Cargando configuración para canal {}", channelName);
@@ -32,7 +36,7 @@ public class ProducerFactory {
     public <T> MessageProducer<T> createProducer(ChannelConfig cfg, Class<T> payloadType) {
         return (MessageProducer<T>) switch (cfg.getType()) {
         case KAFKA -> new KafkaProducerAdapter<T>(cfg, payloadType);
-        case RABBITMQ -> new RabbitProducerAdapter<T>(cfg, payloadType);
+        case RABBITMQ -> new RabbitProducerAdapter<T>(cfg, payloadType, rabbitConnectionManager);
         };
     }
 
