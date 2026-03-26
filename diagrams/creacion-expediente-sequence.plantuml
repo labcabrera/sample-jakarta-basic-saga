@@ -1,5 +1,5 @@
-@startuml Case Folder Creation Sequence Diagram
-title Case Folder Creation Sequence Diagram
+@startuml Secuencia creación expediente
+title Secuencia creación expediente
 
 skinparam sequence {
     ParticipantBackgroundColor #005b72
