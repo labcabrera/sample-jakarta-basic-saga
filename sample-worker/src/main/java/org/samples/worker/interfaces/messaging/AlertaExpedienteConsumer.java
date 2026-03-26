@@ -26,6 +26,6 @@ public class AlertaExpedienteConsumer {
 
     private void handle(Message<AlertaExpedienteDto> message) {
         AlertaExpedienteDto dto = message.payload();
-        log.warn("Received alert {}", dto);
+        log.info("Recibida alerta de expediente {}", dto);
     }
 }
