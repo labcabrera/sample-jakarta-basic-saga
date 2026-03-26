@@ -2,6 +2,7 @@ package org.samples.saga.outbox;
 
 import org.samples.binder.DomainEvent;
 import org.samples.binder.Message;
+import org.samples.saga.outbox.OutboxEventEntity.Status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -30,14 +31,14 @@ public class OutboxService {
         }
         log.info("Enqueuing outbox event for channel {} with payload {}", channel, payload.getClass().getSimpleName());
         try {
-            String aggregateId = getAggregateId(payload);
+            String correlationId = getCorrelationId(payload);
             String payloadJson = mapper.writeValueAsString(payload);
             OutboxEventEntity event = OutboxEventEntity.builder()
-                .aggregateId(aggregateId)
+                .correlationId(correlationId)
                 .channel(channel)
                 .payload(payloadJson)
                 .payloadType(payload.getClass().getName())
-                .status("PENDING")
+                .status(Status.PENDING)
                 .attempts(0)
                 .build();
             repository.save(event);
@@ -48,7 +49,7 @@ public class OutboxService {
         }
     }
 
-    private String getAggregateId(Object payload) {
+    private String getCorrelationId(Object payload) {
         if (payload instanceof DomainEvent domainEvent) {
             return domainEvent.getId();
         }

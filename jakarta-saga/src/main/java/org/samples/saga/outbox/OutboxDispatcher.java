@@ -1,6 +1,6 @@
 package org.samples.saga.outbox;
 
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -113,7 +113,7 @@ public class OutboxDispatcher {
                     // Exponential backoff (capped)
                     long multiplier = (long) Math.pow(2, attempts - 1);
                     long backoffMs = Math.min(config.getBaseBackoffMs() * multiplier, config.getMaxBackoffMs());
-                    Instant nextAttempt = Instant.now().plusMillis(backoffMs);
+                    Date nextAttempt = new Date(System.currentTimeMillis() + backoffMs);
                     repository.markFailed(e.getId(), attempts, nextAttempt);
                     log.warn("Failed to dispatch outbox event {} channel={} attempts={} nextAttempt={} - {}", e.getId(), e.getChannel(),
                         attempts, nextAttempt, ex.getMessage(), ex);

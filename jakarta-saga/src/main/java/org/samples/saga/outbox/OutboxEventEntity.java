@@ -1,11 +1,13 @@
 package org.samples.saga.outbox;
 
-import java.time.Instant;
+import java.util.Date;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +25,7 @@ public class OutboxEventEntity {
     @Id
     private String id;
 
-    private String aggregateId;
+    private String correlationId;
 
     private String channel;
 
@@ -32,18 +34,25 @@ public class OutboxEventEntity {
     @Lob
     private String payload;
 
-    private String status; // PENDING, SENDING, SENT, FAILED
+    private Status status;
 
     private int attempts;
 
-    private Instant createdAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
-    private Instant sentAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date sentAt;
 
     private String messageId;
 
-    private Instant nextAttemptAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date nextAttemptAt;
 
     private String dlqReason;
+
+    public static enum Status {
+        PENDING, SENDING, SENT, FAILED, DLQ
+    }
 
 }
