@@ -1,8 +1,8 @@
 # Sample Jakarta Basic SAGA
 
-Ejemplo de implementación SAGA coreografiada utilizando Jakarta EE sin dependencias adicionales. La aplicación define una librería básica para hacer el binding con sistemas de mensajería (Kafka y RabbitMQ en este ejemplo) para tener una interface independiente de la implementación a la hora de consumir y publicar los eventos.
+Ejemplo de implementación SAGA coreografiada utilizando https://microservices.io/patterns/data/transactional-outbox.html[Outbox Pattern] sobre Jakarta EE sin dependencias adicionales. La aplicación define una librería básica para hacer el binding con sistemas de mensajería (Kafka y RabbitMQ en este ejemplo) para tener una interface independiente de la implementación a la hora de consumir y publicar los eventos.
 
-El objetivo de este ejemplo es mostrar una implementación sencilla sin utilizar frameworks adicionales como Axon o Eventuate.
+El objetivo de este ejemplo es mostrar una implementación sencilla sin utilizar frameworks adicionales como https://www.axoniq.io/framework[Axon] o https://eventuate.io/abouteventuatetram.html[Eventuate].
 
 Este ejemplo consta de dos microservicios:
 
