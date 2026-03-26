@@ -6,9 +6,10 @@ import org.samples.binder.BinderConfiguration;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageProducer;
 import org.samples.binder.ChannelConfig.BrokerType;
-import org.samples.binder.kafka.KafkaProducerAdapter;
-import org.samples.binder.rabbitmq.RabbitProducerAdapter;
-import org.samples.binder.rabbitmq.RabbitConnectionManager;
+import org.samples.binder.MessageProducerProvider;
+
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,8 @@ public class ProducerFactory {
     private final BinderConfiguration config = new BinderConfiguration();
 
     @jakarta.inject.Inject
-    private RabbitConnectionManager rabbitConnectionManager;
+    @Any
+    private Instance<MessageProducerProvider> providers;
 
     public <T> ChannelConfig loadChannelConfig(String channelName) {
         log.info("Cargando configuración para canal {}", channelName);
@@ -34,10 +36,12 @@ public class ProducerFactory {
     }
 
     public <T> MessageProducer<T> createProducer(ChannelConfig cfg, Class<T> payloadType) {
-        return (MessageProducer<T>) switch (cfg.getType()) {
-        case KAFKA -> new KafkaProducerAdapter<T>(cfg, payloadType);
-        case RABBITMQ -> new RabbitProducerAdapter<T>(cfg, payloadType, rabbitConnectionManager);
-        };
+        for (MessageProducerProvider p : providers) {
+            if (p.getBrokerType() == cfg.getType()) {
+                return p.createProducer(cfg, payloadType);
+            }
+        }
+        throw new IllegalArgumentException("No MessageProducerProvider found for type: " + cfg.getType());
     }
 
     private ChannelConfig buildKafkaConfig(String channelName) {

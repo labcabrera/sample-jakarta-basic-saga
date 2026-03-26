@@ -28,15 +28,12 @@ public class ConsumerBeanFactory {
     @Channel("")
     public <T> MessageConsumer<T> produceConsumer(InjectionPoint injectionPoint) {
         log.info("Creating Consumer for {}", injectionPoint);
-
         Channel channel = injectionPoint.getAnnotated().getAnnotation(Channel.class);
         if (channel == null) {
             throw new IllegalStateException("Missing @Channel in injection point " + injectionPoint);
         }
-
         String channelName = channel.value();
         Class<T> payloadType = resolvePayloadType(injectionPoint);
-
         return registry.getOrCreate(channelName, payloadType, () -> {
             ChannelConfig config = factory.loadChannelConfig(channelName, payloadType);
             return factory.createConsumer(config, payloadType);

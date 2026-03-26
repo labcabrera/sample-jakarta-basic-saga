@@ -32,16 +32,8 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>${rabbitmq.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>${kafka.version}</version>
-        </dependency>
+        <!-- Broker-specific clients moved to broker modules (jakarta-stream-binder-kafka /
+        jakarta-stream-binder-rabbit) -->
     </dependencies>
 
 </project>

@@ -4,9 +4,10 @@ import org.samples.binder.BinderConfiguration;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageConsumer;
 import org.samples.binder.ChannelConfig.BrokerType;
-import org.samples.binder.kafka.KafkaConsumerAdapter;
-import org.samples.binder.rabbitmq.RabbitConsumerAdapter;
-import org.samples.binder.rabbitmq.RabbitConnectionManager;
+import org.samples.binder.MessageConsumerProvider;
+
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +19,16 @@ public class ConsumerFactory {
     private final BinderConfiguration config = new BinderConfiguration();
 
     @jakarta.inject.Inject
-    private RabbitConnectionManager rabbitConnectionManager;
+    @Any
+    private Instance<MessageConsumerProvider> providers;
 
     public <T> MessageConsumer<T> createConsumer(ChannelConfig cfg, Class<T> payloadType) {
-        return (MessageConsumer<T>) switch (cfg.getType()) {
-        case RABBITMQ -> new RabbitConsumerAdapter<T>(cfg, payloadType, rabbitConnectionManager);
-        case KAFKA -> new KafkaConsumerAdapter<T>(cfg, payloadType);
-        };
+        for (MessageConsumerProvider p : providers) {
+            if (p.getBrokerType() == cfg.getType()) {
+                return p.createConsumer(cfg, payloadType);
+            }
+        }
+        throw new IllegalArgumentException("No MessageConsumerProvider found for type: " + cfg.getType());
     }
 
     public <T> ChannelConfig loadChannelConfig(String channelName, Class<T> payloadType) {
