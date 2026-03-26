@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Destroyed;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -34,6 +35,7 @@ public class OutboxDispatcher {
     private OutboxConfiguration config;
 
     private volatile boolean running = true;
+    private volatile Thread workerThread;
 
     private final ObjectMapper mapper;
 
@@ -46,7 +48,17 @@ public class OutboxDispatcher {
         log.info("Iniciando OutboxDispatcher");
         Thread thread = new Thread(this::loop, "outbox-dispatcher");
         thread.setDaemon(true);
+        this.workerThread = thread;
         thread.start();
+    }
+
+    public void onStop(@Observes @Destroyed(ApplicationScoped.class) Object init) {
+        log.info("Deteniendo OutboxDispatcher");
+        running = false;
+        Thread thread = this.workerThread;
+        if (thread != null) {
+            thread.interrupt();
+        }
     }
 
     private void loop() {
@@ -60,8 +72,8 @@ public class OutboxDispatcher {
                 Thread.currentThread().interrupt();
                 running = false;
             }
-            catch (Exception e) {
-                log.error("Outbox dispatcher error", e);
+            catch (Exception ex) {
+                log.error("Outbox dispatcher error", ex);
                 try {
                     Thread.sleep(config.getWaitOnErrorMs());
                 }

@@ -49,13 +49,12 @@ public class OutboxService {
     }
 
     private String getAggregateId(Object payload) {
-        if (payload.getClass().isAssignableFrom(DomainEvent.class)) {
-            return ((DomainEvent) payload).getId();
+        if (payload instanceof DomainEvent domainEvent) {
+            return domainEvent.getId();
         }
-        else if (payload.getClass().isAssignableFrom(Message.class)) {
-            Object message = ((Message<?>) payload).payload();
-            if (message.getClass().isAssignableFrom(DomainEvent.class)) {
-                return ((DomainEvent) message).getId();
+        else if (payload instanceof Message<?> message) {
+            if (message.payload() instanceof DomainEvent domainEvent) {
+                return domainEvent.getId();
             }
         }
         log.warn("Could not extract aggregate ID from payload of type {}", payload.getClass().getName());

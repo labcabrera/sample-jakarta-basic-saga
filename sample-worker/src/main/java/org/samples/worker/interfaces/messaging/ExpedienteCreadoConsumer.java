@@ -21,6 +21,12 @@ import org.samples.worker.interfaces.messaging.dtos.ResultadoCreacionExpedienteD
 public class ExpedienteCreadoConsumer {
 
 	@Inject
+	private ProcesadorExpedientePort procesadorExpediente;
+
+	/**
+	 * Consumidor de mensajes del broker
+	 */
+	@Inject
 	@Channel("creacion-expediente")
 	private MessageConsumer<CreacionExpedienteDto> consumer;
 
@@ -31,9 +37,6 @@ public class ExpedienteCreadoConsumer {
 	@Inject
 	@Channel("creacion-expediente-ko")
 	private MessageProducer<ResultadoCreacionExpedienteDto> producerError;
-
-	@Inject
-	private ProcesadorExpedientePort procesadorExpediente;
 
 	public void onStart(@Observes @Initialized(ApplicationScoped.class) Object init) {
 		log.info("Application started - subscribing to creacion-expediente channel (CDI observer)");
@@ -49,13 +52,15 @@ public class ExpedienteCreadoConsumer {
 			success = true;
 		}
 		catch (Exception ex) {
-			resultado.setMessage("Error :" + ex.getMessage());
+			resultado.setMessage(ex.getMessage());
 		}
+		var key = msg.key() != null ? msg.key() : dto.getId();
+		var headers = Map.of("correlationId", key);
 		if (success) {
-			this.producerSuccess.send(new Message<>(resultado, msg.key(), Map.of("correlationId", msg.key())));
+			this.producerSuccess.send(new Message<>(resultado, key, headers));
 		}
 		else {
-			this.producerError.send(new Message<>(resultado, msg.key(), Map.of("correlationId", msg.key())));
+			this.producerError.send(new Message<>(resultado, key, headers));
 		}
 	}
 }

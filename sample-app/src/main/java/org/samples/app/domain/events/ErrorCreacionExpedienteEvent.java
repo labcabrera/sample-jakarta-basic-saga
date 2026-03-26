@@ -2,6 +2,9 @@ package org.samples.app.domain.events;
 
 import org.samples.binder.DomainEvent;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +14,10 @@ public class ErrorCreacionExpedienteEvent extends DomainEvent {
 
     private final String error;
 
-    public ErrorCreacionExpedienteEvent(String id, String error) {
+    @JsonCreator
+    public ErrorCreacionExpedienteEvent(
+        @JsonProperty("id") String id,
+        @JsonProperty("error") String error) {
         super(id);
         this.error = error;
     }
