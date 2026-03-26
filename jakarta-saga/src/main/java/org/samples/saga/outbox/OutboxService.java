@@ -1,5 +1,8 @@
 package org.samples.saga.outbox;
 
+import org.samples.binder.DomainEvent;
+import org.samples.binder.Message;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -22,9 +25,15 @@ public class OutboxService {
     }
 
     public void enqueue(String channel, Object payload) {
+        if (payload == null) {
+            throw new IllegalArgumentException("Payload cannot be null");
+        }
+        log.info("Enqueuing outbox event for channel {} with payload {}", channel, payload.getClass().getSimpleName());
         try {
+            String aggregateId = getAggregateId(payload);
             String payloadJson = mapper.writeValueAsString(payload);
             OutboxEventEntity event = OutboxEventEntity.builder()
+                .aggregateId(aggregateId)
                 .channel(channel)
                 .payload(payloadJson)
                 .payloadType(payload.getClass().getName())
@@ -37,6 +46,20 @@ public class OutboxService {
             log.error("Failed to enqueue outbox event", e);
             throw new RuntimeException("Failed to enqueue outbox event", e);
         }
+    }
+
+    private String getAggregateId(Object payload) {
+        if (payload.getClass().isAssignableFrom(DomainEvent.class)) {
+            return ((DomainEvent) payload).getId();
+        }
+        else if (payload.getClass().isAssignableFrom(Message.class)) {
+            Object message = ((Message<?>) payload).payload();
+            if (message.getClass().isAssignableFrom(DomainEvent.class)) {
+                return ((DomainEvent) message).getId();
+            }
+        }
+        log.warn("Could not extract aggregate ID from payload of type {}", payload.getClass().getName());
+        return null;
     }
 
 }
