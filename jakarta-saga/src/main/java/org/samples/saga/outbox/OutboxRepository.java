@@ -14,6 +14,8 @@ public interface OutboxRepository {
 
     void markSent(String id, String messageId);
 
-    void markFailed(String id, int attempts);
+    void markFailed(String id, int attempts, java.time.Instant nextAttemptAt);
+
+    void markDlq(String id, int attempts, String reason);
 
 }

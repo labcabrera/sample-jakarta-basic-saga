@@ -42,4 +42,8 @@ public class OutboxEventEntity {
 
     private String messageId;
 
+    private Instant nextAttemptAt;
+
+    private String dlqReason;
+
 }

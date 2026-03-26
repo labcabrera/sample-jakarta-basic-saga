@@ -1,5 +1,6 @@
 package org.samples.saga.outbox;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -29,14 +30,12 @@ public class OutboxDispatcher {
     @Inject
     private ProducerFactory producerFactory;
 
+    @Inject
+    private OutboxConfiguration config;
+
     private volatile boolean running = true;
 
     private final ObjectMapper mapper;
-
-    //TODO read from config
-    private int LOOP_INTERVAL_MS = 1000;
-    private int BATCH_SIZE = 10;
-    private int WAIT_TIME_ON_ERROR_MS = 5000;
 
     public OutboxDispatcher() {
         this.mapper = new ObjectMapper();
@@ -53,9 +52,9 @@ public class OutboxDispatcher {
     private void loop() {
         while (running) {
             try {
-                List<OutboxEventEntity> pending = repository.findPending(BATCH_SIZE);
+                List<OutboxEventEntity> pending = repository.findPending(config.getBatchSize());
                 pending.forEach(this::handleEvent);
-                Thread.sleep(LOOP_INTERVAL_MS);
+                Thread.sleep(config.getLoopIntervalMs());
             }
             catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
@@ -64,7 +63,7 @@ public class OutboxDispatcher {
             catch (Exception e) {
                 log.error("Outbox dispatcher error", e);
                 try {
-                    Thread.sleep(WAIT_TIME_ON_ERROR_MS);
+                    Thread.sleep(config.getWaitOnErrorMs());
                 }
                 catch (InterruptedException ignored) {
                     Thread.currentThread().interrupt();
@@ -93,8 +92,25 @@ public class OutboxDispatcher {
         }
         catch (Exception ex) {
             int attempts = e.getAttempts() + 1;
-            repository.markFailed(e.getId(), attempts);
-            log.warn("Failed to dispatch outbox event {}: {}", e.getId(), ex.getMessage());
+            try {
+                if (attempts >= config.getMaxAttempts()) {
+                    repository.markDlq(e.getId(), attempts, ex.getMessage());
+                    log.error("Outbox event {} moved to DLQ after {} attempts, channel={} reason={}",
+                        e.getId(), attempts, e.getChannel(), ex.getMessage(), ex);
+                }
+                else {
+                    // Exponential backoff (capped)
+                    long multiplier = (long) Math.pow(2, attempts - 1);
+                    long backoffMs = Math.min(config.getBaseBackoffMs() * multiplier, config.getMaxBackoffMs());
+                    Instant nextAttempt = Instant.now().plusMillis(backoffMs);
+                    repository.markFailed(e.getId(), attempts, nextAttempt);
+                    log.warn("Failed to dispatch outbox event {} channel={} attempts={} nextAttempt={} - {}", e.getId(), e.getChannel(),
+                        attempts, nextAttempt, ex.getMessage(), ex);
+                }
+            }
+            catch (Exception repoEx) {
+                log.error("Failed updating outbox event state for {}", e.getId(), repoEx);
+            }
         }
     }
 
