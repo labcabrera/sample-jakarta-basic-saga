@@ -2,9 +2,11 @@
 
 Ejemplo de implementación SAGA coreografiada utilizando Jakarta EE sin dependencias adicionales. La aplicación define una librería básica para hacer el binding con sistemas de mensajería (Kafka y RabbitMQ en este ejemplo) para tener una interface independiente de la implementación a la hora de consumir y publicar los eventos.
 
+El objetivo de este ejemplo es mostrar una implementación sencilla sin utilizar frameworks adicionales como Axon o Eventuate.
+
 Este ejemplo consta de dos microservicios:
 
-[cols="1,3"]
+[cols="1,2"]
 |===
 |_sample-app_    | Aplicación principal que expone una API REST para gestionar
                    expedientes y generar alertas.
@@ -15,13 +17,14 @@ Ambos microservicios están basados en WildFly usando el formato bootable jar lo
 
 Estos microservicios utilizan las librerías compartidas:
 
-[cols="1,3"]
+[cols="1,2"]
 |===
 |_jakarta-stream-binder_ | Librería de abstracción para la integración con sistemas
                            de mensajería (Kafka y RabbitMQ en este ejemplo).
 |_jakarta-saga_          | Implementación básica del patrón Outbox para la gestión de eventos
                            y la consistencia entre la base de datos y el broker de mensajes.
-|_jakarta-cqrs_          | Implementación básica de CQRS para integrar en los controladores.
+|_jakarta-cqrs_          | Implementación básica de CQRS para integrar en los controladores, ya
+                           sean REST o de eventos a través de los buses de comandos y consultas.
 |===
 Adicionalmente se utilizan las dependencias:
 
