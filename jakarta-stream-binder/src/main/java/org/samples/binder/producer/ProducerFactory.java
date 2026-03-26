@@ -25,8 +25,7 @@ public class ProducerFactory {
         return switch (type.toLowerCase()) {
         case "kafka" -> buildKafkaConfig(channelName);
         case "rabbitmq" -> buildRabbitConfig(channelName);
-        default -> throw new IllegalArgumentException(
-            "Tipo de canal no soportado para " + channelName + ": " + type);
+        default -> throw new IllegalArgumentException("Tipo de canal no soportado para " + channelName + ": " + type);
         };
     }
 
@@ -39,26 +38,28 @@ public class ProducerFactory {
 
     private ChannelConfig buildKafkaConfig(String channelName) {
         String prefix = "messaging.channels." + channelName + ".";
+        String defaultPrefix = "messaging.channels.kafka.";
         ChannelConfig channelConfig = ChannelConfig.builder()
             .type(BrokerType.KAFKA)
             .channelName(channelName)
             .topic(config.getValue(prefix + "topic", String.class))
-            .bootstrapServers(getValue(prefix + "bootstrap.servers", "messaging.channels.kafka.bootstrap.servers", String.class))
+            .bootstrapServers(getValue(prefix + "bootstrap.servers", defaultPrefix + "bootstrap.servers", String.class))
             .build();
         return applySharedConfig(channelConfig, channelName);
     }
 
     private ChannelConfig buildRabbitConfig(String channelName) {
         String prefix = "messaging.channels." + channelName + ".";
+        String defaultPrefix = "messaging.channels.rabbitmq.";
         ChannelConfig channelConfig = ChannelConfig.builder()
             .type(BrokerType.RABBITMQ)
             .channelName(channelName)
             .exchange(config.getValue(prefix + "exchange", String.class))
             .routingKey(config.getValue(prefix + "routing-key", String.class))
-            .host(getValue(prefix + "host", "messaging.channels.rabbit.host", String.class))
-            .port(getValue(prefix + "port", "messaging.channels.rabbit.port", Integer.class))
-            .username(getValue(prefix + "username", "messaging.channels.rabbit.username", String.class))
-            .password(getValue(prefix + "password", "messaging.channels.rabbit.password", String.class))
+            .host(getValue(prefix + "host", defaultPrefix + "host", String.class))
+            .port(getValue(prefix + "port", defaultPrefix + "port", Integer.class))
+            .username(getValue(prefix + "username", defaultPrefix + "username", String.class))
+            .password(getValue(prefix + "password", defaultPrefix + "password", String.class))
             .build();
         return applySharedConfig(channelConfig, channelName);
     }
