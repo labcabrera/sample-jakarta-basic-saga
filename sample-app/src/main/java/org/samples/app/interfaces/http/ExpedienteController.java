@@ -3,6 +3,7 @@ package org.samples.app.interfaces.http;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 import org.samples.app.application.cqrs.commands.CrearExpedienteCommand;
+import org.samples.app.application.cqrs.commands.EliminarExpedienteCommand;
 import org.samples.app.application.cqrs.queries.GetExpedienteByIdQuery;
 import org.samples.app.application.cqrs.queries.GetExpedientesQuery;
 import org.samples.app.domain.entities.Expediente;
@@ -48,7 +50,8 @@ public class ExpedienteController {
 	public Response findById(@PathParam("id") String id) {
 		Query query = new GetExpedienteByIdQuery(id);
 		Expediente expediente = queryBus.execute(query, Expediente.class);
-		return Response.ok(expediente).build();
+		ExpedienteDto dto = expedienteMapper.toDto(expediente);
+		return Response.ok(dto).build();
 	}
 
 	@GET
@@ -64,7 +67,7 @@ public class ExpedienteController {
 	}
 
 	@POST
-	public Response createAlert(CreacionExpedienteDto dto) {
+	public Response create(CreacionExpedienteDto dto) {
 		CrearExpedienteCommand command = new CrearExpedienteCommand(
 			dto.getNombre(),
 			dto.getApellido1(),
@@ -73,6 +76,14 @@ public class ExpedienteController {
 		Expediente expediente = commandBus.execute(command, Expediente.class);
 		ExpedienteDto result = expedienteMapper.toDto(expediente);
 		return Response.status(Response.Status.CREATED).entity(result).build();
+	}
+
+	@DELETE
+	@Path("{id}")
+	public Response delete(@PathParam("id") String id) {
+		EliminarExpedienteCommand command = new EliminarExpedienteCommand(id);
+		commandBus.execute(command, Void.class);
+		return Response.noContent().build();
 	}
 
 }
