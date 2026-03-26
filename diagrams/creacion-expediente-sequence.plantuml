@@ -1,9 +1,13 @@
 @startuml Case Folder Creation Sequence Diagram
 title Case Folder Creation Sequence Diagram
 
-skinparam ParticipantBackgroundColor #005b72
-skinparam ParticipantFontColor #ffffff
-skinparam ArrowColor #263236
+skinparam sequence {
+    ParticipantBackgroundColor #005b72
+    ParticipantFontColor #ffffff
+    ArrowColor #235872
+    LifeLineBorderColor #005b72
+    LifeLineBackgroundColor #005b72
+}
 
 participant "API Client" as Client
 participant "API" as API
@@ -81,7 +85,7 @@ deactivate Rabbit
 activate API
 API -> ApiDB: Actualizar estado
 activate ApiDB
-DB --> API: Updated
+ApiDB --> API: Updated
 deactivate ApiDB
 deactivate API
 
@@ -119,7 +123,7 @@ deactivate Rabbit
 activate API
 API -> ApiDB: Delete expediente
 activate ApiDB
-DB --> API: Deleted
+ApiDB --> API: Deleted
 deactivate ApiDB
 
 API -> ApiDB: Save outbox event error
