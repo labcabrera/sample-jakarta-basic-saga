@@ -3,71 +3,147 @@ title Case Folder Creation Sequence Diagram
 
 skinparam ParticipantBackgroundColor #005b72
 skinparam ParticipantFontColor #ffffff
-skinparam ArrowColor #000000
+skinparam ArrowColor #263236
 
 participant "API Client" as Client
 participant "API" as API
-participant "Database" as DB
-participant "Kafka" as Kafka
+participant "API Event Dispatcher" as ApiEventDispatcher
+participant "API Database" as ApiDB
 participant "RabbitMQ" as Rabbit
+participant "Kafka" as Kafka
 participant "Worker" as Worker
+participant "Worker Event Dispatcher" as WorkerEventDispatcher
+participant "Worker Database" as WorkerDB
 
 == Creación de expediente ==
 
 Client -> API: POST /expedientes
 activate Client
 activate API
-API -> DB: Save
-activate DB
-DB --> API: Saved
-deactivate DB
-API -> Rabbit: Event CreacionExpediente
-activate Rabbit
-Rabbit --> API: Ack
-deactivate Rabbit
+API -> ApiDB: Save expediente
+activate ApiDB
+ApiDB --> API: Saved
+API -> ApiDB: Save outbox event
+ApiDB --> API: Saved
+deactivate ApiDB
 API --> Client: 201 Created
 deactivate API
 deactivate Client
+
+group Event Dispatching
+    ApiEventDispatcher -> ApiDB: Fetch outbox events
+    activate ApiEventDispatcher
+    activate ApiDB
+    ApiDB --> ApiEventDispatcher: Outbox events
+    deactivate ApiDB
+    ApiEventDispatcher -> Rabbit: Publish CreacionExpediente
+    activate Rabbit
+    Rabbit --> ApiEventDispatcher: Ack
+    deactivate Rabbit
+    ApiEventDispatcher -> ApiDB: Mark outbox event as processed
+    activate ApiDB
+    ApiDB --> ApiEventDispatcher: Updated
+    deactivate ApiDB
+    deactivate ApiEventDispatcher
+end
 
 == Crecion Expediente OK ==
 
 Rabbit -> Worker: Evento expediente creado
 activate Rabbit
+deactivate Rabbit
 activate Worker
 Worker -> Worker: Ejecutar lógica de negocio
-Worker -> Rabbit: Publish Created OK
+Worker -> WorkerDB: Save outbox event OK
+activate WorkerDB
+WorkerDB --> Worker: Saved
+deactivate WorkerDB
 deactivate Worker
+
+group Event Dispatching
+    WorkerEventDispatcher -> WorkerDB: Fetch outbox events
+    activate WorkerEventDispatcher
+    activate WorkerDB
+    WorkerDB --> WorkerEventDispatcher: Outbox events
+    deactivate WorkerDB
+    WorkerEventDispatcher -> Rabbit: Publish Created OK
+    activate Rabbit
+    Rabbit --> WorkerEventDispatcher: Ack
+    WorkerEventDispatcher -> WorkerDB: Mark outbox event as processed
+    activate WorkerDB
+    WorkerDB --> WorkerEventDispatcher: Updated
+    deactivate WorkerEventDispatcher
+    deactivate WorkerDB
+end
 
 Rabbit -> API: Evento expediente creado OK
 deactivate Rabbit
 activate API
-API -> DB: Actualizar estado
-activate DB
+API -> ApiDB: Actualizar estado
+activate ApiDB
 DB --> API: Updated
-deactivate DB
+deactivate ApiDB
 deactivate API
 
 == Crecion Expediente KO ==
 
 Rabbit -> Worker: Evento expediente creado
 activate Rabbit
+deactivate Rabbit
 activate Worker
 Worker -> Worker: Ejecutar lógica de negocio
-Worker -> Rabbit: Publish Created KO
+Worker -> WorkerDB: Save outbox event KO
+activate WorkerDB
+WorkerDB --> Worker: Saved
+deactivate WorkerDB
 deactivate Worker
 
-Rabbit -> API: Evento expediente creado KO
+group Event Dispatching
+    WorkerEventDispatcher -> WorkerDB: Fetch outbox events
+    activate WorkerEventDispatcher
+    activate WorkerDB
+    WorkerDB --> WorkerEventDispatcher: Outbox events
+    deactivate WorkerDB
+    WorkerEventDispatcher -> Rabbit: Publish Created OK
+    activate Rabbit
+    Rabbit --> WorkerEventDispatcher: Ack
+    WorkerEventDispatcher -> WorkerDB: Mark outbox event as processed
+    activate WorkerDB
+    WorkerDB --> WorkerEventDispatcher: Updated
+    deactivate WorkerEventDispatcher
+    deactivate WorkerDB
+end
+
+Rabbit -> API: Evento expediente creado OK
 deactivate Rabbit
 activate API
-API -> DB: Borrar expediente
-activate DB
+API -> ApiDB: Delete expediente
+activate ApiDB
 DB --> API: Deleted
-deactivate DB
-API -> Kafka: Publish Expediente Alert
-activate Kafka
-Kafka --> API: Ack
-deactivate Kafka
+deactivate ApiDB
+
+API -> ApiDB: Save outbox event error
+activate ApiDB
+ApiDB --> API: Saved
+deactivate ApiDB
 deactivate API
+
+group Event Dispatching
+    ApiEventDispatcher -> ApiDB: Fetch outbox events
+    activate ApiEventDispatcher
+    activate ApiDB
+    ApiDB --> ApiEventDispatcher: Outbox events
+    deactivate ApiDB
+    ApiEventDispatcher -> Kafka: Publish expediente alert
+    activate Kafka
+    Kafka --> ApiEventDispatcher: Ack
+    deactivate Kafka
+    ApiEventDispatcher -> ApiDB: Mark outbox event as processed
+    activate ApiDB
+    ApiDB --> ApiEventDispatcher: Updated
+    deactivate ApiDB
+    deactivate ApiEventDispatcher
+end
 
 == Procesamiento error creacion expediente ==
 
