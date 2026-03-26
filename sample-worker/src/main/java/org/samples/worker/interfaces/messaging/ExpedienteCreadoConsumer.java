@@ -8,11 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.samples.binder.Channel;
 import org.samples.binder.MessageConsumer;
+import org.samples.cqrs.CommandBus;
 import org.samples.binder.Message;
-import org.samples.saga.outbox.OutboxService;
-import org.samples.worker.application.ports.ProcesadorExpedientePort;
-import org.samples.worker.domain.events.ExpedienteCreadoKoEvent;
-import org.samples.worker.domain.events.ExpedienteCreadoOkEvent;
+import org.samples.worker.application.cqrs.commands.ProcesarExpedienteCommand;
 import org.samples.worker.interfaces.messaging.dtos.CreacionExpedienteDto;
 
 @ApplicationScoped
@@ -20,14 +18,11 @@ import org.samples.worker.interfaces.messaging.dtos.CreacionExpedienteDto;
 public class ExpedienteCreadoConsumer {
 
 	@Inject
-	private ProcesadorExpedientePort procesadorExpediente;
-
-	@Inject
 	@Channel("creacion-expediente")
 	private MessageConsumer<CreacionExpedienteDto> consumer;
 
 	@Inject
-	private OutboxService outboxService;
+	private CommandBus commandBus;
 
 	public void onStart(@Observes @Initialized(ApplicationScoped.class) Object init) {
 		log.info("Application started - subscribing to creacion-expediente channel (CDI observer)");
@@ -35,17 +30,10 @@ public class ExpedienteCreadoConsumer {
 	}
 
 	private void handleAlert(Message<CreacionExpedienteDto> msg) {
-		CreacionExpedienteDto dto = msg.payload();
-		var idExpediente = dto.getId();
-		var codigoExpediente = dto.getCodigoExpediente();
-		try {
-			procesadorExpediente.procesar(idExpediente, codigoExpediente);
-			var event = new ExpedienteCreadoOkEvent(idExpediente);
-			outboxService.enqueue("creacion-expediente-ok", event);
-		}
-		catch (Exception ex) {
-			var event = new ExpedienteCreadoKoEvent(idExpediente, ex.getMessage());
-			outboxService.enqueue("creacion-expediente-ko", event);
-		}
+		var payload = msg.payload();
+		var idExpediente = payload.getId();
+		var codigoExpediente = payload.getCodigoExpediente();
+		var command = new ProcesarExpedienteCommand(idExpediente, codigoExpediente);
+		commandBus.execute(command, Void.class);
 	}
 }

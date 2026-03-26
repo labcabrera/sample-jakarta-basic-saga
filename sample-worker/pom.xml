@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>org.samples</groupId>
+            <artifactId>jakarta-cqrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.samples</groupId>
             <artifactId>jakarta-saga</artifactId>
         </dependency>
         <dependency>
