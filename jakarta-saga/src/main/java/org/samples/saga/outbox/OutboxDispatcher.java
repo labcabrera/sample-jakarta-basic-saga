@@ -12,8 +12,9 @@ import org.samples.binder.MessageProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +43,8 @@ public class OutboxDispatcher {
         this.mapper.registerModule(new JavaTimeModule());
     }
 
-    @PostConstruct
-    public void start() {
+    public void onStart(@Observes @Initialized(ApplicationScoped.class) Object init) {
+        log.info("Iniciando OutboxDispatcher");
         Thread thread = new Thread(this::loop, "outbox-dispatcher");
         thread.setDaemon(true);
         thread.start();
