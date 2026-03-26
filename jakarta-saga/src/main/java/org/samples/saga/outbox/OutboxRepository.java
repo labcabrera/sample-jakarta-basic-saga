@@ -4,9 +4,11 @@ import java.util.List;
 
 public interface OutboxRepository {
 
-    void save(OutboxEvent event);
+    void save(OutboxEventEntity event);
 
-    List<OutboxEvent> findPending(int limit);
+    List<OutboxEventEntity> findAll(int page, int limit);
+
+    List<OutboxEventEntity> findPending(int limit);
 
     boolean markSending(String id);
 

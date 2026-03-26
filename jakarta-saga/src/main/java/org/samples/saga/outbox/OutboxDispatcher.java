@@ -52,7 +52,7 @@ public class OutboxDispatcher {
     private void loop() {
         while (running) {
             try {
-                List<OutboxEvent> pending = repository.findPending(BATCH_SIZE);
+                List<OutboxEventEntity> pending = repository.findPending(BATCH_SIZE);
                 pending.forEach(this::handleEvent);
                 Thread.sleep(LOOP_INTERVAL_MS);
             }
@@ -73,7 +73,7 @@ public class OutboxDispatcher {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void handleEvent(OutboxEvent e) {
+    private void handleEvent(OutboxEventEntity e) {
         try {
             boolean claimed = repository.markSending(e.getId());
             if (!claimed) {

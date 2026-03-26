@@ -5,8 +5,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
+@Slf4j
 public class OutboxService {
 
     private final ObjectMapper mapper;
@@ -22,7 +24,7 @@ public class OutboxService {
     public void enqueue(String channel, Object payload) {
         try {
             String payloadJson = mapper.writeValueAsString(payload);
-            OutboxEvent event = OutboxEvent.builder()
+            OutboxEventEntity event = OutboxEventEntity.builder()
                 .channel(channel)
                 .payload(payloadJson)
                 .payloadType(payload.getClass().getName())
@@ -32,6 +34,7 @@ public class OutboxService {
             repository.save(event);
         }
         catch (Exception e) {
+            log.error("Failed to enqueue outbox event", e);
             throw new RuntimeException("Failed to enqueue outbox event", e);
         }
     }

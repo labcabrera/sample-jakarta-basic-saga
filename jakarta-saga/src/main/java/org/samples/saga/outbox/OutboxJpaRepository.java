@@ -17,7 +17,22 @@ public class OutboxJpaRepository implements OutboxRepository {
     private EntityManager em;
 
     @Override
-    public void save(OutboxEvent event) {
+    public List<OutboxEventEntity> findPending(int limit) {
+        return em.createQuery("SELECT e FROM OutboxEventEntity e WHERE e.status = 'PENDING' ORDER BY e.createdAt", OutboxEventEntity.class)
+            .setMaxResults(limit)
+            .getResultList();
+    }
+
+    @Override
+    public List<OutboxEventEntity> findAll(int page, int limit) {
+        return em.createQuery("SELECT e FROM OutboxEventEntity e", OutboxEventEntity.class)
+            .setMaxResults(limit)
+            .setFirstResult(page * limit)
+            .getResultList();
+    }
+
+    @Override
+    public void save(OutboxEventEntity event) {
         if (event.getId() == null) {
             event.setId(UUID.randomUUID().toString());
         }
@@ -31,15 +46,8 @@ public class OutboxJpaRepository implements OutboxRepository {
     }
 
     @Override
-    public List<OutboxEvent> findPending(int limit) {
-        return em.createQuery("SELECT e FROM OutboxEvent e WHERE e.status = 'PENDING' ORDER BY e.createdAt", OutboxEvent.class)
-            .setMaxResults(limit)
-            .getResultList();
-    }
-
-    @Override
     public boolean markSending(String id) {
-        int updated = em.createQuery("UPDATE OutboxEvent e SET e.status = 'SENDING' WHERE e.id = :id AND e.status = 'PENDING'")
+        int updated = em.createQuery("UPDATE OutboxEventEntity e SET e.status = 'SENDING' WHERE e.id = :id AND e.status = 'PENDING'")
             .setParameter("id", id)
             .executeUpdate();
         return updated == 1;
@@ -47,7 +55,7 @@ public class OutboxJpaRepository implements OutboxRepository {
 
     @Override
     public void markSent(String id, String messageId) {
-        em.createQuery("UPDATE OutboxEvent e SET e.status = 'SENT', e.sentAt = :sentAt, e.messageId = :messageId WHERE e.id = :id")
+        em.createQuery("UPDATE OutboxEventEntity e SET e.status = 'SENT', e.sentAt = :sentAt, e.messageId = :messageId WHERE e.id = :id")
             .setParameter("sentAt", Instant.now())
             .setParameter("messageId", messageId)
             .setParameter("id", id)
@@ -56,7 +64,7 @@ public class OutboxJpaRepository implements OutboxRepository {
 
     @Override
     public void markFailed(String id, int attempts) {
-        em.createQuery("UPDATE OutboxEvent e SET e.status = 'FAILED', e.attempts = :attempts WHERE e.id = :id")
+        em.createQuery("UPDATE OutboxEventEntity e SET e.status = 'FAILED', e.attempts = :attempts WHERE e.id = :id")
             .setParameter("attempts", attempts)
             .setParameter("id", id)
             .executeUpdate();

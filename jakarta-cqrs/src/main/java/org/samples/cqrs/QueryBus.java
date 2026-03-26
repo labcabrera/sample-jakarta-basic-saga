@@ -31,7 +31,7 @@ public class QueryBus extends AbstractBus {
     }
 
     public <T> T execute(Query command, Class<T> responseType) {
-        log.info("Ejecutando command: {} with con tipo de respuesta {}", command, responseType);
+        log.info("Ejecutando query {} with con tipo de respuesta {}", command, responseType.getSimpleName());
         QueryHandler found = registry.get(command.getClass());
         if (found == null) {
             for (Map.Entry<Class<?>, QueryHandler> e : registry.entrySet()) {
