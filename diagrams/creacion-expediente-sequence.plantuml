@@ -1,5 +1,6 @@
 @startuml Secuencia creación expediente
 title Secuencia creación expediente
+hide footbox
 
 skinparam sequence {
     ParticipantBackgroundColor #005b72

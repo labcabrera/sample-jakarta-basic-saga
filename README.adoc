@@ -223,7 +223,6 @@ su única responsabilidad será la de transformar los objetos de entrada y crear
 * Registro automático de exchange/queue y topics para no hacerlo manualmente.
 * Reconexión automática en caso de fallo de la conexión con la infraestructura de mensajería.
 * Configuracion sobre el tipo de serialización a utilizar (JSON, Avro, Protobuf, etc) o tipo de compresión utilizada.
-* Consideraciones de aplicar patron Outbox y persistir los eventos antes del envío al broker.
 * Configuración para propagación de contexto de seguridad a través de los mensajes.
 * Separación de la libreria en librerías específicas del binder y una común con las interfaces y clases compartidas.
 
@@ -240,10 +239,6 @@ Si bien no es necesario para implementar un patrón SAGA donde simplemente podem
 * Aisla de los problemas que pudiera haber de comunicación con el broker de mensajes en caso de caída.
 
 * Facilita la auditoría y el seguimiento de los eventos, ya que se pueden almacenar metadatos adicionales en la base de datos junto con el evento.
-
-Este caso último de auditoría es relevante ya que si al final tenemos N entidades del dominio
-que funcionan como una máquina de estados, para saber el estado de todas las transacciones en curso es necesario una consulta para cada una de las entidades.
-Aplicando el patrón Outbox podemos almacenar toda la información relevante de cada evento en la base de datos y así poder consultar el estado de todas las transacciones con una única consulta a la base de datos.
 
 ### Consolas de administración de RabbitMQ y Kafka
 
