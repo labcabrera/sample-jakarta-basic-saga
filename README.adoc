@@ -20,11 +20,15 @@ Estos microservicios utilizan las librerías compartidas:
 [cols="1,2"]
 |===
 |_jakarta-stream-binder_ | Librería de abstracción para la integración con sistemas
-                           de mensajería.
-|_jakarta-stream-binder-kafka_ | Implementación de interfaces de de la librería de bindeo específicas
-                                 de Kafka.
+                           de mensajería (también podría utilizarse para otros mecanismos
+                           como por ejemplo enviar un correo o registrar una incidencia en
+                           un sistema de ticketing pero para nuestro propósito de la demo
+                           estará enfocado a proporcionar una interface limpia para utilizar
+                           un broker).
+|_jakarta-stream-binder-kafka_  | Implementación de interfaces de de la librería de bindeo específicas
+                                  de Kafka.
 |_jakarta-stream-binder-rabbit_ | Implementación de interfaces de de la librería de bindeo específicas
-                                 de RabbitMQ.
+                                  de RabbitMQ.
 |_jakarta-saga_          | Implementación básica del patrón Outbox para la gestión de eventos
                            y la consistencia entre la base de datos y el broker de mensajes.
 |_jakarta-cqrs_          | Implementación básica de CQRS para integrar en los controladores, ya
