@@ -33,8 +33,8 @@ public class ExpedienteCreadoSuccessController {
     private void handleAlert(Message<ResultadoCreacionExpedienteDto> msg) {
         ResultadoCreacionExpedienteDto resultado = msg.payload();
         log.info("Recibido resultado Success << {}", resultado);
-        String id = resultado.getId();
-        ConsolidarExpedienteCommand cmd = new ConsolidarExpedienteCommand(id);
+        String idExpediente = resultado.idExpediente();
+        ConsolidarExpedienteCommand cmd = new ConsolidarExpedienteCommand(idExpediente);
         Expediente expediente = commandBus.execute(cmd);
         log.info("Expediente consolidado: {}", expediente.getId());
     }

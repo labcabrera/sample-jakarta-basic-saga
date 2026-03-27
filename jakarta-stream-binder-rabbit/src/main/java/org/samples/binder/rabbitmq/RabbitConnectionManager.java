@@ -25,10 +25,12 @@ public class RabbitConnectionManager {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(cfg.getHost());
         factory.setPort(cfg.getPort());
-        if (cfg.getUsername() != null)
+        if (cfg.getUsername() != null) {
             factory.setUsername(cfg.getUsername());
-        if (cfg.getPassword() != null)
+        }
+        if (cfg.getPassword() != null) {
             factory.setPassword(cfg.getPassword());
+        }
         factory.setAutomaticRecoveryEnabled(true);
         factory.setTopologyRecoveryEnabled(true);
         Connection newConn = factory.newConnection();

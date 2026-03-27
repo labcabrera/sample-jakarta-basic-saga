@@ -32,8 +32,8 @@ public class ExpedienteCreadoErrorController {
     private void handleAlert(Message<ResultadoCreacionExpedienteDto> msg) {
         ResultadoCreacionExpedienteDto resultado = msg.payload();
         log.info("Recibido resultado Error << {}", resultado);
-        String id = resultado.getId();
-        String error = resultado.getMessage();
+        String id = resultado.idExpediente();
+        String error = resultado.mensaje();
         CompensarExpedienteCommand cmd = new CompensarExpedienteCommand(id, error);
         commandBus.execute(cmd);
     }

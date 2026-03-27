@@ -46,11 +46,11 @@ public class OutboxService {
 
     private String getCorrelationId(Object payload) {
         if (payload instanceof DomainEvent domainEvent) {
-            return domainEvent.getId();
+            return domainEvent.aggregateId();
         }
         else if (payload instanceof Message<?> message) {
             if (message.payload() instanceof DomainEvent domainEvent) {
-                return domainEvent.getId();
+                return domainEvent.aggregateId();
             }
         }
         log.warn("Could not extract aggregate ID from payload of type {}", payload.getClass().getName());

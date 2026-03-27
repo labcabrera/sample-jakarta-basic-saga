@@ -17,7 +17,7 @@ public class GetExpedienteByIdHandler implements QueryHandler<GetExpedienteByIdQ
 
     @Override
     public Expediente apply(GetExpedienteByIdQuery query) {
-        return repository.findById(query.getId()).orElseThrow(NotFoundException::new);
+        return repository.findById(query.idExpediente()).orElseThrow(NotFoundException::new);
     }
 
 }

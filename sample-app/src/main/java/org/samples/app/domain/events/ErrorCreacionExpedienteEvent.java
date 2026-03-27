@@ -5,21 +5,21 @@ import org.samples.binder.DomainEvent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+public record ErrorCreacionExpedienteEvent(
+    String idExpediente,
+    String error) implements DomainEvent {
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class ErrorCreacionExpedienteEvent extends DomainEvent {
+    // @JsonCreator
+    // public ErrorCreacionExpedienteEvent(
+    //     @JsonProperty("id") String idExpediente,
+    //     @JsonProperty("error") String error) {
+    //     this.idExpediente = idExpediente;
+    //     this.error = error;
+    // }
 
-    private final String error;
-
-    @JsonCreator
-    public ErrorCreacionExpedienteEvent(
-        @JsonProperty("id") String id,
-        @JsonProperty("error") String error) {
-        super(id);
-        this.error = error;
+    @Override
+    public String aggregateId() {
+        return idExpediente;
     }
 
 }

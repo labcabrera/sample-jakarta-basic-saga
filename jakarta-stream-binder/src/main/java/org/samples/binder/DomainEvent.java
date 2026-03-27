@@ -1,12 +1,7 @@
 package org.samples.binder;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public interface DomainEvent {
 
-@Data
-@AllArgsConstructor
-public abstract class DomainEvent {
-
-    protected final String id;
+    String aggregateId();
 
 }

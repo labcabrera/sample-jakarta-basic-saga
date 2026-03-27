@@ -2,14 +2,16 @@ package org.samples.worker.domain.events;
 
 import org.samples.binder.DomainEvent;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+public record ExpedienteCreadoOkEvent(String idExpediente) implements DomainEvent {
 
-public class ExpedienteCreadoOkEvent extends DomainEvent {
-
-    @JsonCreator
-    public ExpedienteCreadoOkEvent(@JsonProperty("id") String id) {
-        super(id);
+    @Override
+    public String aggregateId() {
+        return idExpediente;
     }
+
+    // @JsonCreator
+    // public ExpedienteCreadoOkEvent(@JsonProperty("id") String id) {
+    //     super(id);
+    // }
 
 }

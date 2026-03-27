@@ -1,7 +1,7 @@
 package org.samples.cqrs;
 
 /**
- * Representa un comando en el patrón CQRS.
+ * Representa un comando del patrón CQRS.
  *
  * <p>
  * Un {@code Command} modela una intención de cambio de estado en el sistema. Es un
@@ -19,5 +19,4 @@ package org.samples.cqrs;
  * </ul>
  */
 public interface Command {
-
 }

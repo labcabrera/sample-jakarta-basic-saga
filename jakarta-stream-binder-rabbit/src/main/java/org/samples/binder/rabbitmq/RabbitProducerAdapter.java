@@ -60,7 +60,7 @@ public class RabbitProducerAdapter<T> implements MessageProducer<T> {
         }
         String key = null;
         if (payload instanceof DomainEvent event) {
-            key = event.getId();
+            key = event.aggregateId();
         }
         else {
             log.warn("Payload is not a DomainEvent, generating random key for traceability");

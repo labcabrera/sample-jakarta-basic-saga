@@ -5,21 +5,21 @@ import org.samples.binder.DomainEvent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+public record ExpedienteParcialmenteCreadoEvent(
+    String idExpediente,
+    String codigoExpediente) implements DomainEvent {
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class ExpedienteParcialmenteCreadoEvent extends DomainEvent {
+    // @JsonCreator
+    // public ExpedienteParcialmenteCreadoEvent(
+    //     @JsonProperty("idExpediente") String idExpediente,
+    //     @JsonProperty("codigoExpediente") String codigoExpediente) {
+    //     this.idExpediente = idExpediente;
+    //     this.codigoExpediente = codigoExpediente;
+    // }
 
-    private final String codigoExpediente;
-
-    @JsonCreator
-    public ExpedienteParcialmenteCreadoEvent(
-        @JsonProperty("id") String id,
-        @JsonProperty("codigoExpediente") String codigoExpediente) {
-        super(id);
-        this.codigoExpediente = codigoExpediente;
+    @Override
+    public String aggregateId() {
+        return idExpediente;
     }
 
 }

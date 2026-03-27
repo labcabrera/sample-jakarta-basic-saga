@@ -2,13 +2,8 @@ package org.samples.app.application.cqrs.queries;
 
 import org.samples.cqrs.Query;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record GetExpedienteByIdQuery(
+    String idExpediente)
 
-@Data
-@AllArgsConstructor
-public class GetExpedienteByIdQuery implements Query {
-
-    private final String id;
-
+    implements Query {
 }

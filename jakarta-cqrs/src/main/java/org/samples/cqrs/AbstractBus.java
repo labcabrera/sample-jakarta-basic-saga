@@ -9,6 +9,10 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
 
+/**
+ * Utilidad base para buses de comandos y eventos con los métodos de registro y resolución
+ * de handlers usando CDI.
+ */
 public abstract class AbstractBus {
 
     @SuppressWarnings("unchecked")

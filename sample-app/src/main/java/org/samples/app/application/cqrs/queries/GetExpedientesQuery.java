@@ -2,15 +2,10 @@ package org.samples.app.application.cqrs.queries;
 
 import org.samples.cqrs.Query;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record GetExpedientesQuery(
+    String rsql,
+    int page,
+    int size)
 
-@Data
-@AllArgsConstructor
-public class GetExpedientesQuery implements Query {
-
-    private final String rsql;
-    private final int page;
-    private final int size;
-
+    implements Query {
 }

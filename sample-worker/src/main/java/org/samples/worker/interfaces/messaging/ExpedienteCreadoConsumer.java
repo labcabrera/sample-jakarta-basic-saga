@@ -31,8 +31,8 @@ public class ExpedienteCreadoConsumer {
 
 	private void handleAlert(Message<CreacionExpedienteDto> msg) {
 		var payload = msg.payload();
-		var idExpediente = payload.getId();
-		var codigoExpediente = payload.getCodigoExpediente();
+		var idExpediente = payload.idExpediente();
+		var codigoExpediente = payload.codigoExpediente();
 		var command = new ProcesarExpedienteCommand(idExpediente, codigoExpediente);
 		commandBus.execute(command);
 	}
