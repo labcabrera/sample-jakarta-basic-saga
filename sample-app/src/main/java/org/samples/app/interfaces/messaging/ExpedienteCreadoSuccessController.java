@@ -35,7 +35,7 @@ public class ExpedienteCreadoSuccessController {
         log.info("Recibido resultado Success << {}", resultado);
         String id = resultado.getId();
         ConsolidarExpedienteCommand cmd = new ConsolidarExpedienteCommand(id);
-        Expediente expediente = commandBus.execute(cmd, Expediente.class);
+        Expediente expediente = commandBus.execute(cmd);
         log.info("Expediente consolidado: {}", expediente.getId());
     }
 }

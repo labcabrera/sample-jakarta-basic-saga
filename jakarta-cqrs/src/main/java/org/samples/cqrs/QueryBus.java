@@ -12,16 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @Slf4j
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings("unchecked")
 public class QueryBus extends AbstractBus {
 
     @Inject
-    private Instance<QueryHandler> handlers;
+    private Instance<QueryHandler<?, ?>> handlers;
 
     @Inject
     private BeanManager beanManager;
 
-    private final Map<Class<?>, QueryHandler> registry = new ConcurrentHashMap<>();
+    private final Map<Class<?>, QueryHandler<?, ?>> registry = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -30,22 +30,25 @@ public class QueryBus extends AbstractBus {
         log.info("Handlers registrados: {}", registry.keySet());
     }
 
-    public <T> T execute(Query command, Class<T> responseType) {
-        log.debug("Ejecutando query {} with con tipo de respuesta {}", command, responseType.getSimpleName());
-        QueryHandler found = registry.get(command.getClass());
+    public <Q, R> R execute(Q command) {
+        log.debug("Ejecutando query {}", command);
+        QueryHandler<Q, R> found = (QueryHandler<Q, R>) registry.get(command.getClass());
         if (found == null) {
-            for (Map.Entry<Class<?>, QueryHandler> e : registry.entrySet()) {
+            for (Map.Entry<Class<?>, QueryHandler<?, ?>> e : registry.entrySet()) {
                 if (e.getKey().isAssignableFrom(command.getClass())) {
-                    found = e.getValue();
+                    found = (QueryHandler<Q, R>) e.getValue();
                     break;
                 }
             }
         }
         if (found != null) {
-            Object result = found.apply(command);
-            return responseType.cast(result);
+            return found.apply(command);
         }
-        throw new IllegalStateException("No CommandHandler found for command: " + command.getClass());
+        throw new IllegalStateException("No QueryHandler found for command: " + command.getClass());
+    }
+
+    public <Q> void executeVoid(Q command) {
+        execute(command);
     }
 
 }

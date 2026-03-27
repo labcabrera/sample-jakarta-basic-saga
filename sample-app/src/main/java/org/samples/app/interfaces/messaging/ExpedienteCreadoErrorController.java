@@ -35,6 +35,6 @@ public class ExpedienteCreadoErrorController {
         String id = resultado.getId();
         String error = resultado.getMessage();
         CompensarExpedienteCommand cmd = new CompensarExpedienteCommand(id, error);
-        commandBus.execute(cmd, Void.class);
+        commandBus.execute(cmd);
     }
 }

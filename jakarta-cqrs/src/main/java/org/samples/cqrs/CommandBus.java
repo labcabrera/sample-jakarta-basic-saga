@@ -12,16 +12,15 @@ import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @Slf4j
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CommandBus extends AbstractBus {
 
     @Inject
-    private Instance<CommandHandler> handlers;
+    private Instance<CommandHandler<?, ?>> handlers;
 
     @Inject
     private BeanManager beanManager;
 
-    private final Map<Class<?>, CommandHandler> registry = new ConcurrentHashMap<>();
+    private final Map<Class<?>, CommandHandler<?, ?>> registry = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -30,22 +29,21 @@ public class CommandBus extends AbstractBus {
         log.info("Handlers registrados: {}", registry.keySet());
     }
 
-    public <T> T execute(Command command, Class<T> responseType) {
-        log.info("Ejecutando command: {} with con tipo de respuesta {}", command, responseType);
-        CommandHandler found = registry.get(command.getClass());
+    @SuppressWarnings("unchecked")
+    public <C, R> R execute(C command) {
+        log.info("Ejecutando command: {}", command);
+        CommandHandler<C, R> found = (CommandHandler<C, R>) registry.get(command.getClass());
         if (found == null) {
-            for (Map.Entry<Class<?>, CommandHandler> e : registry.entrySet()) {
+            for (Map.Entry<Class<?>, CommandHandler<?, ?>> e : registry.entrySet()) {
                 if (e.getKey().isAssignableFrom(command.getClass())) {
-                    found = e.getValue();
+                    found = (CommandHandler<C, R>) e.getValue();
                     break;
                 }
             }
         }
         if (found != null) {
-            Object result = found.apply(command);
-            return responseType.cast(result);
+            return found.apply(command);
         }
         throw new IllegalStateException("No CommandHandler found for command: " + command.getClass());
     }
-
 }

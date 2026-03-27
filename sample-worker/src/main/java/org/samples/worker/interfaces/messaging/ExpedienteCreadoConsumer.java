@@ -34,6 +34,6 @@ public class ExpedienteCreadoConsumer {
 		var idExpediente = payload.getId();
 		var codigoExpediente = payload.getCodigoExpediente();
 		var command = new ProcesarExpedienteCommand(idExpediente, codigoExpediente);
-		commandBus.execute(command, Void.class);
+		commandBus.execute(command);
 	}
 }

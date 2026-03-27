@@ -27,7 +27,7 @@ public class CompensarExpedienteHandler implements CommandHandler<CompensarExped
         String id = command.getId();
         String motivoError = command.getMotivoError();
         var deleteCommand = new EliminarExpedienteCommand(id);
-        commandBus.execute(deleteCommand, Void.class);
+        commandBus.execute(deleteCommand);
         var event = new ErrorCreacionExpedienteEvent(id, motivoError);
         outboxService.enqueue("creacion-expediente-alerta", event);
         return null;

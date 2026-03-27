@@ -49,19 +49,18 @@ public class ExpedienteController {
 	@Path("{id}")
 	public Response findById(@PathParam("id") String id) {
 		Query query = new GetExpedienteByIdQuery(id);
-		Expediente expediente = queryBus.execute(query, Expediente.class);
+		Expediente expediente = queryBus.execute(query);
 		ExpedienteDto dto = expedienteMapper.toDto(expediente);
 		return Response.ok(dto).build();
 	}
 
 	@GET
-	@SuppressWarnings("unchecked")
 	public Response findByRsql(
 		@DefaultValue("") @QueryParam("q") String rsql,
 		@DefaultValue("0") @QueryParam("page") int page,
 		@DefaultValue("10") @QueryParam("size") int size) {
 		Query query = new GetExpedientesQuery(rsql, page, size);
-		List<Expediente> list = queryBus.execute(query, List.class);
+		List<Expediente> list = queryBus.execute(query);
 		List<ExpedienteDto> dtos = list.stream().map(expedienteMapper::toDto).toList();
 		return Response.ok(dtos).build();
 	}
@@ -73,7 +72,7 @@ public class ExpedienteController {
 			dto.getApellido1(),
 			dto.getApellido2(),
 			dto.getCodigo());
-		Expediente expediente = commandBus.execute(command, Expediente.class);
+		Expediente expediente = commandBus.execute(command);
 		ExpedienteDto result = expedienteMapper.toDto(expediente);
 		return Response.status(Response.Status.CREATED).entity(result).build();
 	}
@@ -82,7 +81,7 @@ public class ExpedienteController {
 	@Path("{id}")
 	public Response delete(@PathParam("id") String id) {
 		EliminarExpedienteCommand command = new EliminarExpedienteCommand(id);
-		commandBus.execute(command, Void.class);
+		commandBus.execute(command);
 		return Response.noContent().build();
 	}
 
