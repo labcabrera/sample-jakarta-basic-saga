@@ -26,12 +26,10 @@ public class KafkaProducerAdapter<T> implements MessageProducer<T> {
     private final KafkaProducer<String, byte[]> producer;
     private final String topic;
     private final JsonMessageSerializer jsonSerializer = new JsonMessageSerializer();
+    private final boolean owner;
 
     public KafkaProducerAdapter(ChannelConfig cfg, Class<T> payloadType) {
-        String bootstrapServers = cfg.getBootstrapServers();
-
-        log.info("Creating KafkaProducerAdapter for channel '{}' topic='{}' boootstrapServers='{}'' payload={}",
-            cfg.getChannelName(), cfg.getTopic(), bootstrapServers, payloadType);
+        log.info("Creating KafkaProducerAdapter for channel '{}' topic='{}'", cfg.getChannelName(), cfg.getTopic());
 
         Properties props = new Properties();
         props.put("bootstrap.servers", cfg.getBootstrapServers());
@@ -39,6 +37,14 @@ public class KafkaProducerAdapter<T> implements MessageProducer<T> {
         props.put("value.serializer", ByteArraySerializer.class.getName());
         this.producer = new KafkaProducer<>(props);
         this.topic = cfg.getTopic();
+        this.owner = true;
+    }
+
+    public KafkaProducerAdapter(ChannelConfig cfg, Class<T> payloadType, KafkaProducer<String, byte[]> sharedProducer, boolean owner) {
+        log.info("Creating KafkaProducerAdapter (shared) for channel '{}' topic='{}'", cfg.getChannelName(), cfg.getTopic());
+        this.producer = sharedProducer;
+        this.topic = cfg.getTopic();
+        this.owner = owner;
     }
 
     @Override
@@ -57,7 +63,6 @@ public class KafkaProducerAdapter<T> implements MessageProducer<T> {
             if (message.headers() != null) {
                 message.headers().forEach((k, v) -> record.headers().add(new RecordHeader(k, v.getBytes())));
             }
-
             producer.send(record, new Callback() {
                 @Override
                 public void onCompletion(RecordMetadata metadata, Exception exception) {
@@ -83,8 +88,10 @@ public class KafkaProducerAdapter<T> implements MessageProducer<T> {
 
     @Override
     public void close() {
-        log.info("Closing Kafka producer for topic '{}'", topic);
-        producer.close();
+        log.info("Closing Kafka producer for topic '{}' (owner={})", topic, owner);
+        if (owner) {
+            producer.close();
+        }
     }
 
 }

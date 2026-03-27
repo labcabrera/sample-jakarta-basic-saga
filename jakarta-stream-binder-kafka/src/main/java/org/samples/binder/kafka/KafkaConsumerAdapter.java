@@ -7,6 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.samples.binder.ChannelConfig;
@@ -21,6 +22,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 
 @Slf4j
 public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
@@ -29,7 +31,7 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
     private final String topic;
     private final Class<T> payloadType;
     private final ObjectMapper mapper = new ObjectMapper();
-    private volatile java.util.function.Consumer<Message<T>> handler;
+    private volatile Consumer<Message<T>> handler;
     private final List<CompletableFuture<Message<T>>> pending = Collections.synchronizedList(new ArrayList<>());
     private final Thread poller;
     private volatile boolean running = true;
@@ -38,9 +40,7 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
         this.topic = cfg.getTopic();
         this.payloadType = payloadType;
         String consumerGroup = cfg.getConsumerGroup() != null ? cfg.getConsumerGroup() : "group-" + UUID.randomUUID();
-
-        log.info("Creating KafkaConsumerAdapter for channel='{}' topic='{}' bootstrapServers='{}' payload={}",
-            cfg.getChannelName(), cfg.getTopic(), cfg.getBootstrapServers(), payloadType);
+        log.info("Creating KafkaConsumerAdapter for channel='{}' topic='{}'", cfg.getChannelName(), cfg.getTopic());
 
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cfg.getBootstrapServers());
@@ -48,10 +48,8 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
         this.consumer = new KafkaConsumer<>(props);
         this.consumer.subscribe(Collections.singletonList(topic));
-
         this.poller = new Thread(() -> {
             try {
                 while (running) {
@@ -59,18 +57,16 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
                     for (ConsumerRecord<String, byte[]> r : records) {
                         T payload = deserialize(r.value());
                         Message<T> msg = new Message<>(payload, r.key(), Collections.emptyMap());
-
                         // first satisfy pending one-shot receives
-                        CompletableFuture<Message<T>> fut = null;
+                        CompletableFuture<Message<T>> future = null;
                         synchronized (pending) {
                             if (!pending.isEmpty())
-                                fut = pending.remove(0);
+                                future = pending.remove(0);
                         }
-                        if (fut != null) {
-                            fut.complete(msg);
+                        if (future != null) {
+                            future.complete(msg);
                             continue;
                         }
-
                         if (handler != null) {
                             try {
                                 handler.accept(msg);
@@ -82,11 +78,11 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
                     }
                 }
             }
-            catch (org.apache.kafka.common.errors.WakeupException we) {
+            catch (WakeupException we) {
                 // expected on close
             }
-            catch (Exception e) {
-                log.error("Error in Kafka consumer poll loop", e);
+            catch (Exception ex) {
+                log.error("Error in Kafka consumer poll loop", ex);
             }
             finally {
                 try {
