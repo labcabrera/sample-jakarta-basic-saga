@@ -11,9 +11,9 @@ import jakarta.enterprise.inject.spi.BeanManager;
 
 public abstract class AbstractBus {
 
+    @SuppressWarnings("unchecked")
     protected <H> Map<Class<?>, H> registerHandlers(Instance<H> handlers, BeanManager beanManager, Class<?> handlerInterface) {
         Map<Class<?>, H> registry = new ConcurrentHashMap<>();
-
         for (H handler : handlers) {
             Class<?> handlerClass = handler.getClass();
             Class<?> cmdType = resolveHandlerType(handlerClass, handlerInterface);
@@ -27,21 +27,20 @@ public abstract class AbstractBus {
                 registry.put(cmdType, handler);
             }
         }
-
         if (registry.isEmpty() && beanManager != null) {
             for (Bean<?> bean : beanManager.getBeans(Object.class)) {
                 Class<?> beanClass = bean.getBeanClass();
-                if (!handlerInterface.isAssignableFrom(beanClass))
+                if (!handlerInterface.isAssignableFrom(beanClass)) {
                     continue;
+                }
                 Class<?> cmdType = resolveHandlerType(beanClass, handlerInterface);
                 if (cmdType != null) {
-                    @SuppressWarnings("unchecked")
-                    H handlerRef = (H) beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean));
+                    var ctx = beanManager.createCreationalContext(bean);
+                    H handlerRef = (H) beanManager.getReference(bean, bean.getBeanClass(), ctx);
                     registry.put(cmdType, handlerRef);
                 }
             }
         }
-
         return registry;
     }
 

@@ -5,7 +5,6 @@ import org.samples.binder.Message;
 import org.samples.saga.outbox.OutboxEventEntity.Status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,15 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OutboxService {
 
-    private final ObjectMapper mapper;
-
     @Inject
     private OutboxRepository repository;
 
-    public OutboxService() {
-        this.mapper = new ObjectMapper();
-        this.mapper.registerModule(new JavaTimeModule());
-    }
+    @Inject
+    private ObjectMapper mapper;
 
     public void enqueue(String channel, Object payload) {
         if (payload == null) {

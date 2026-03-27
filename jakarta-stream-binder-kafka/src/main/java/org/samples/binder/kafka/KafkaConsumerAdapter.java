@@ -30,13 +30,14 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topic;
     private final Class<T> payloadType;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
     private volatile Consumer<Message<T>> handler;
     private final List<CompletableFuture<Message<T>>> pending = Collections.synchronizedList(new ArrayList<>());
     private final Thread poller;
     private volatile boolean running = true;
 
-    public KafkaConsumerAdapter(ChannelConfig cfg, Class<T> payloadType) {
+    public KafkaConsumerAdapter(ChannelConfig cfg, Class<T> payloadType, ObjectMapper mapper) {
+        this.mapper = mapper;
         this.topic = cfg.getTopic();
         this.payloadType = payloadType;
         String consumerGroup = cfg.getConsumerGroup() != null ? cfg.getConsumerGroup() : "group-" + UUID.randomUUID();

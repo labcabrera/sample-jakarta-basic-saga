@@ -2,14 +2,9 @@ package org.samples.worker.application.cqrs.commands;
 
 import org.samples.cqrs.Command;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record ProcesarExpedienteCommand(
+    String idExpediente,
+    String codigoExpediente
 
-@Data
-@AllArgsConstructor
-public class ProcesarExpedienteCommand implements Command {
-
-    private final String id;
-    private final String codigoExpediente;
-
+) implements Command {
 }

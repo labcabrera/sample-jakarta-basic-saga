@@ -15,6 +15,7 @@ import org.samples.binder.MessageProducer;
 import org.samples.binder.SendResult;
 import org.samples.binder.serialization.JsonMessageSerializer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
@@ -33,9 +34,10 @@ public class RabbitProducerAdapter<T> implements MessageProducer<T> {
     private final String destination;
     private final Connection connection;
     private final Channel channel;
-    private final JsonMessageSerializer jsonSerializer = new JsonMessageSerializer();
+    private final JsonMessageSerializer jsonSerializer;
 
-    public RabbitProducerAdapter(ChannelConfig cfg, Class<T> payloadType, RabbitConnectionManager connectionManager) {
+    public RabbitProducerAdapter(ChannelConfig cfg, Class<T> payloadType, RabbitConnectionManager connectionManager, ObjectMapper mapper) {
+        this.jsonSerializer = new JsonMessageSerializer(mapper);
         this.exchange = cfg.getExchange();
         this.routingKey = cfg.getRoutingKey();
         this.destination = cfg.getChannelName();

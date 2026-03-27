@@ -22,7 +22,7 @@ public class ProcesadorExpedienteHandler implements CommandHandler<ProcesarExped
 
     @Override
     public Void apply(ProcesarExpedienteCommand command) {
-        var idExpediente = command.getId();
+        String idExpediente = command.idExpediente();
         try {
             processCommand(command);
             var event = new ExpedienteCreadoOkEvent(idExpediente);
@@ -38,10 +38,11 @@ public class ProcesadorExpedienteHandler implements CommandHandler<ProcesarExped
 
     public void processCommand(ProcesarExpedienteCommand command) {
         log.info("Procesando expediente {}", command);
-        if (command.getCodigoExpediente() == null || command.getCodigoExpediente().isEmpty()) {
+        String codigoExpediente = command.codigoExpediente();
+        if (codigoExpediente == null || codigoExpediente.isEmpty()) {
             throw new IllegalArgumentException(TEMPLATE_ERR_EMPTY);
         }
-        else if (command.getCodigoExpediente().equals("ERROR")) {
+        else if ("error".equalsIgnoreCase(codigoExpediente)) {
             throw new RuntimeException(TEMPLATE_ERR_SIMULATION);
         }
     }

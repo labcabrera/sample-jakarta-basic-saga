@@ -8,11 +8,16 @@ import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageProducer;
 import org.samples.binder.MessageProducerProvider;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @ApplicationScoped
 public class KafkaMessageProducerProvider implements MessageProducerProvider {
 
     @Inject
     private KafkaClientManager kafkaClientManager;
+
+    @Inject
+    private ObjectMapper mapper;
 
     @Override
     public ChannelConfig.BrokerType getBrokerType() {
@@ -22,6 +27,6 @@ public class KafkaMessageProducerProvider implements MessageProducerProvider {
     @Override
     public <T> MessageProducer<T> createProducer(ChannelConfig cfg, Class<T> payloadType) {
         KafkaProducer<String, byte[]> p = kafkaClientManager.getOrCreateProducer(cfg);
-        return new KafkaProducerAdapter<>(cfg, payloadType, p, false);
+        return new KafkaProducerAdapter<>(cfg, payloadType, p, false, mapper);
     }
 }

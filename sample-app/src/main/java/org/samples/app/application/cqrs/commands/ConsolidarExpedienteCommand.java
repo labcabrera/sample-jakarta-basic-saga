@@ -2,13 +2,8 @@ package org.samples.app.application.cqrs.commands;
 
 import org.samples.cqrs.Command;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record ConsolidarExpedienteCommand(
+    String idExpediente)
 
-@Data
-@AllArgsConstructor
-public class ConsolidarExpedienteCommand implements Command {
-
-    private final String id;
-
+    implements Command {
 }

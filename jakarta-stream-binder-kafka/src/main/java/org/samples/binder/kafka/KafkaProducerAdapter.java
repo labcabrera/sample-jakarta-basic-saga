@@ -20,16 +20,19 @@ import org.samples.binder.MessageProducer;
 import org.samples.binder.SendResult;
 import org.samples.binder.serialization.JsonMessageSerializer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Slf4j
 public class KafkaProducerAdapter<T> implements MessageProducer<T> {
 
     private final KafkaProducer<String, byte[]> producer;
     private final String topic;
-    private final JsonMessageSerializer jsonSerializer = new JsonMessageSerializer();
+    private final JsonMessageSerializer jsonSerializer;
     private final boolean owner;
 
-    public KafkaProducerAdapter(ChannelConfig cfg, Class<T> payloadType) {
+    public KafkaProducerAdapter(ChannelConfig cfg, Class<T> payloadType, ObjectMapper mapper) {
         log.info("Creating KafkaProducerAdapter for channel '{}' topic='{}'", cfg.getChannelName(), cfg.getTopic());
+        this.jsonSerializer = new JsonMessageSerializer(mapper);
 
         Properties props = new Properties();
         props.put("bootstrap.servers", cfg.getBootstrapServers());
@@ -40,11 +43,13 @@ public class KafkaProducerAdapter<T> implements MessageProducer<T> {
         this.owner = true;
     }
 
-    public KafkaProducerAdapter(ChannelConfig cfg, Class<T> payloadType, KafkaProducer<String, byte[]> sharedProducer, boolean owner) {
+    public KafkaProducerAdapter(ChannelConfig cfg, Class<T> payloadType, KafkaProducer<String, byte[]> sharedProducer, boolean owner,
+        ObjectMapper mapper) {
         log.info("Creating KafkaProducerAdapter (shared) for channel '{}' topic='{}'", cfg.getChannelName(), cfg.getTopic());
         this.producer = sharedProducer;
         this.topic = cfg.getTopic();
         this.owner = owner;
+        this.jsonSerializer = new JsonMessageSerializer(mapper);
     }
 
     @Override

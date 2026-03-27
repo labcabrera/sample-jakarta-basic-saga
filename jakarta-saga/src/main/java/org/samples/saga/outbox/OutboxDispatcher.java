@@ -11,7 +11,6 @@ import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageProducer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Destroyed;
@@ -34,15 +33,11 @@ public class OutboxDispatcher {
     @Inject
     private OutboxConfiguration config;
 
+    @Inject
+    private ObjectMapper mapper;
+
     private volatile boolean running = true;
     private volatile Thread workerThread;
-
-    private final ObjectMapper mapper;
-
-    public OutboxDispatcher() {
-        this.mapper = new ObjectMapper();
-        this.mapper.registerModule(new JavaTimeModule());
-    }
 
     public void onStart(@Observes @Initialized(ApplicationScoped.class) Object init) {
         log.info("Iniciando OutboxDispatcher");

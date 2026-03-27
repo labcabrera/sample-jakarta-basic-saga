@@ -2,12 +2,8 @@ package org.samples.app.application.cqrs.commands;
 
 import org.samples.cqrs.Command;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record EliminarExpedienteCommand(
+    String idExpediente)
 
-@Data
-@AllArgsConstructor
-public class EliminarExpedienteCommand implements Command {
-
-    private String id;
+    implements Command {
 }

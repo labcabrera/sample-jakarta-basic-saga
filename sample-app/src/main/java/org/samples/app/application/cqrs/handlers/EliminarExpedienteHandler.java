@@ -17,8 +17,8 @@ public class EliminarExpedienteHandler implements CommandHandler<EliminarExpedie
 
     @Override
     public Void apply(EliminarExpedienteCommand command) {
-        log.info("Eliminando expediente '{}'", command.getId());
-        repository.deleteById(command.getId());
+        log.info("Eliminando expediente '{}'", command.idExpediente());
+        repository.deleteById(command.idExpediente());
         return null;
     }
 

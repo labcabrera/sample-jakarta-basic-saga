@@ -33,10 +33,10 @@ public class CrearExpedienteHandler implements CommandHandler<CrearExpedienteCom
         log.info("Ejecutando comando de creación de expediente: {}", command);
         Expediente expediente = Expediente.builder()
             .id(UUID.randomUUID().toString())
-            .nombre(command.getNombre())
-            .apellido1(command.getApellido1())
-            .apellido2(command.getApellido2())
-            .codigoExpediente(command.getCodigo())
+            .nombre(command.nombre())
+            .apellido1(command.apellido1())
+            .apellido2(command.apellido2())
+            .codigoExpediente(command.codigoExpediente())
             .fechaCreacion(LocalDateTime.now())
             .estado(EstadoExpediente.PENDIENTE_CREACION)
             .build();

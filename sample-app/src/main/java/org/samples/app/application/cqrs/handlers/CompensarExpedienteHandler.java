@@ -23,12 +23,12 @@ public class CompensarExpedienteHandler implements CommandHandler<CompensarExped
 
     @Override
     public Void apply(CompensarExpedienteCommand command) {
-        log.debug("Ejecutando comando de compensación de creación de expediente '{}'", command.getId());
-        String id = command.getId();
-        String motivoError = command.getMotivoError();
-        var deleteCommand = new EliminarExpedienteCommand(id);
+        String idExpediente = command.idExpediente();
+        log.debug("Ejecutando comando de compensación de creación de expediente '{}'", idExpediente);
+        String motivoError = command.motivoError();
+        var deleteCommand = new EliminarExpedienteCommand(idExpediente);
         commandBus.execute(deleteCommand);
-        var event = new ErrorCreacionExpedienteEvent(id, motivoError);
+        var event = new ErrorCreacionExpedienteEvent(idExpediente, motivoError);
         outboxService.enqueue("creacion-expediente-alerta", event);
         return null;
     }

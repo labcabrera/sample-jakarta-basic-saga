@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @Slf4j
-@SuppressWarnings("unchecked")
 public class QueryBus extends AbstractBus {
 
     @Inject
@@ -30,21 +29,22 @@ public class QueryBus extends AbstractBus {
         log.info("Handlers registrados: {}", registry.keySet());
     }
 
-    public <Q, R> R execute(Q command) {
-        log.debug("Ejecutando query {}", command);
-        QueryHandler<Q, R> found = (QueryHandler<Q, R>) registry.get(command.getClass());
+    @SuppressWarnings("unchecked")
+    public <Q, R> R execute(Q query) {
+        log.debug("Ejecutando query {}", query);
+        QueryHandler<Q, R> found = (QueryHandler<Q, R>) registry.get(query.getClass());
         if (found == null) {
             for (Map.Entry<Class<?>, QueryHandler<?, ?>> e : registry.entrySet()) {
-                if (e.getKey().isAssignableFrom(command.getClass())) {
+                if (e.getKey().isAssignableFrom(query.getClass())) {
                     found = (QueryHandler<Q, R>) e.getValue();
                     break;
                 }
             }
         }
         if (found != null) {
-            return found.apply(command);
+            return found.apply(query);
         }
-        throw new IllegalStateException("No QueryHandler found for command: " + command.getClass());
+        throw new IllegalStateException("No QueryHandler found for command: " + query.getClass());
     }
 
     public <Q> void executeVoid(Q command) {
