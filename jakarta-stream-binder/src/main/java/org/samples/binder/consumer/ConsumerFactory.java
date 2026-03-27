@@ -3,14 +3,15 @@ package org.samples.binder.consumer;
 import java.util.Properties;
 
 import org.samples.binder.BinderConfiguration;
+import org.samples.binder.BinderConfigurationException;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageConsumer;
 import org.samples.binder.MessageConsumerProvider;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
-
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
@@ -19,21 +20,24 @@ public class ConsumerFactory {
 
     private final BinderConfiguration config = new BinderConfiguration();
 
-    @jakarta.inject.Inject
+    @Inject
     @Any
     private Instance<MessageConsumerProvider> providers;
 
     public <T> MessageConsumer<T> createConsumer(ChannelConfig cfg, Class<T> payloadType) {
-        for (MessageConsumerProvider p : providers) {
-            if (p.getBrokerType().equalsIgnoreCase(cfg.getType())) {
-                return p.createConsumer(cfg, payloadType);
-            }
-        }
-        throw new IllegalArgumentException("No MessageConsumerProvider found for type: " + cfg.getType());
+        return providers.stream()
+            .filter(p -> p.getBrokerType().equalsIgnoreCase(cfg.getType()))
+            .findFirst()
+            .orElseThrow(() -> new BinderConfigurationException(
+                String.format("No MessageConsumerProvider found for type: '%s'. Channel: '%s'. Available providers: %s",
+                    cfg.getType(),
+                    cfg.getChannelName(),
+                    providers.stream().map(MessageConsumerProvider::getBrokerType).toList())))
+            .createConsumer(cfg, payloadType);
     }
 
     public <T> ChannelConfig loadChannelConfig(String channelName, Class<T> payloadType) {
-        log.info("Cargando configuración para canal {} con payload {}", channelName, payloadType.getName());
+        log.info("Loading configuration for channel '{}'' and type '{}'", channelName, payloadType.getName());
         String type = config.getType(channelName);
         String prefix = "messaging.channels." + channelName + ".";
         String defaultPrefix = "messaging.channels." + type.toLowerCase() + ".";

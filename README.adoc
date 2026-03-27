@@ -6,7 +6,7 @@ El objetivo de este ejemplo es mostrar una implementación sencilla sin utilizar
 
 Este ejemplo consta de dos microservicios:
 
-[cols="1,2"]
+[cols="1,1"]
 |===
 |_sample-app_    | Aplicación principal que expone una API REST para gestionar
                    expedientes y generar alertas.
@@ -17,7 +17,7 @@ Ambos microservicios están basados en WildFly usando el formato bootable jar lo
 
 Estos microservicios utilizan las librerías compartidas:
 
-[cols="1,2"]
+[cols="1,1"]
 |===
 |_jakarta-stream-binder_ | Librería de abstracción para la integración con sistemas
                            de mensajería (también podría utilizarse para otros mecanismos
