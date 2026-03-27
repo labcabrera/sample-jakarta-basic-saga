@@ -48,7 +48,11 @@ public class RabbitConsumerAdapter<T> implements MessageConsumer<T> {
                 public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body)
                     throws IOException {
                     T payload = jsonDeserializer.deserialize(body, payloadType);
-                    Message<T> msg = new Message<>(payload, properties != null ? properties.getMessageId() : null, Map.of());
+                    String key = null;
+                    if (properties != null) {
+                        key = properties.getCorrelationId() != null ? properties.getCorrelationId() : properties.getMessageId();
+                    }
+                    Message<T> msg = new Message<>(payload, key, Map.of());
                     Consumer<Message<T>> h = handler.get();
                     if (h != null) {
                         executor.submit(() -> {
