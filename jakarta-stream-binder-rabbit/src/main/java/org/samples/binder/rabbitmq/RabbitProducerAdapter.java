@@ -55,7 +55,6 @@ public class RabbitProducerAdapter<T> implements MessageProducer<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public CompletionStage<SendResult> send(T payload) {
         if (payload instanceof Message) {
             return send((Message<T>) payload);

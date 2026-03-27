@@ -1,6 +1,7 @@
 package org.samples.binder;
 
 public class BinderConfigurationException extends RuntimeException {
+
     public BinderConfigurationException(String message) {
         super(message);
     }

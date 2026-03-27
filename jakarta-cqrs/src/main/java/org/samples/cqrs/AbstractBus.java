@@ -15,7 +15,6 @@ import jakarta.enterprise.inject.spi.BeanManager;
  */
 public abstract class AbstractBus {
 
-    @SuppressWarnings("unchecked")
     protected <H> Map<Class<?>, H> registerHandlers(Instance<H> handlers, BeanManager beanManager, Class<?> handlerInterface) {
         Map<Class<?>, H> registry = new ConcurrentHashMap<>();
         for (H handler : handlers) {

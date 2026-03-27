@@ -79,7 +79,7 @@ public class OutboxDispatcher {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("rawtypes")
     private void handleEvent(OutboxEventEntity e) {
         try {
             log.info("Handling event {}", e);

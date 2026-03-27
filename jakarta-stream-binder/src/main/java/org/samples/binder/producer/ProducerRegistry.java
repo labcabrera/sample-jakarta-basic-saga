@@ -16,7 +16,6 @@ public class ProducerRegistry {
 
     private final Map<String, MessageProducer<?>> producers = new ConcurrentHashMap<>();
 
-    @SuppressWarnings("unchecked")
     public <T> MessageProducer<T> getOrCreate(String channelName, Class<T> payloadType, Supplier<MessageProducer<T>> supplier) {
         log.info("Obtaining Producer for channel '{}' y payload {}", channelName, payloadType);
         return (MessageProducer<T>) producers.computeIfAbsent(channelName, key -> supplier.get());

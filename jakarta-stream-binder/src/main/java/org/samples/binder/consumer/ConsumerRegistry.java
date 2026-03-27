@@ -16,7 +16,6 @@ public class ConsumerRegistry {
 
     private final Map<String, MessageConsumer<?>> consumers = new ConcurrentHashMap<>();
 
-    @SuppressWarnings("unchecked")
     public <T> MessageConsumer<T> getOrCreate(String channelName, Class<T> payloadType, Supplier<MessageConsumer<T>> supplier) {
         log.info("Obtaining Consumer for channel '{}' and payload {}", channelName, payloadType);
         return (MessageConsumer<T>) consumers.computeIfAbsent(channelName, key -> supplier.get());

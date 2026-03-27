@@ -9,6 +9,11 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * Anotación de CDI para inyectar un MessageProducer o MessageConsumer específico de un
+ * canal.
+ * 
+ */
 @Qualifier
 @Retention(RUNTIME)
 @Target({ FIELD, PARAMETER, METHOD, TYPE })

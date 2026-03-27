@@ -5,6 +5,9 @@ import java.util.Properties;
 
 import lombok.Getter;
 
+/**
+ * Ejemplo de configuración básica de binder a través de un properties.
+ */
 public class BinderConfiguration {
 
     @Getter
@@ -22,6 +25,7 @@ public class BinderConfiguration {
 
     /**
      * Obtiene el tipo de broker para un determinado canal (ej: rabbitmq, kafka, etc.)
+     * 
      * @param channelName
      * @return
      */

@@ -29,7 +29,6 @@ public class QueryBus extends AbstractBus {
         log.info("Handlers registrados: {}", registry.keySet());
     }
 
-    @SuppressWarnings("unchecked")
     public <Q, R> R execute(Q query) {
         log.debug("Ejecutando query {}", query);
         QueryHandler<Q, R> found = (QueryHandler<Q, R>) registry.get(query.getClass());

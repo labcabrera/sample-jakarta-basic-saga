@@ -29,7 +29,6 @@ public class CommandBus extends AbstractBus {
         log.info("Handlers registrados: {}", registry.keySet());
     }
 
-    @SuppressWarnings("unchecked")
     public <C, R> R execute(C command) {
         log.info("Ejecutando command: {}", command);
         CommandHandler<C, R> found = (CommandHandler<C, R>) registry.get(command.getClass());

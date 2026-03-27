@@ -15,7 +15,6 @@ import org.samples.binder.MessageConsumer;
 
 @ApplicationScoped
 @Slf4j
-@SuppressWarnings("unchecked")
 public class ConsumerBeanFactory {
 
     @Inject

@@ -15,7 +15,6 @@ import org.samples.binder.MessageProducer;
 
 @ApplicationScoped
 @Slf4j
-@SuppressWarnings("unchecked")
 public class ProducerBeanFactory {
 
     @Inject

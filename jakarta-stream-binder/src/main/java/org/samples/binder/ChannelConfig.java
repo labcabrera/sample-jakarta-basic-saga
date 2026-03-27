@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 import java.util.Optional;
 import java.util.Properties;
 
+/**
+ * Clase para agrupar todas las propiedades de configuración asociadas a un determinado
+ * canal.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +32,8 @@ public class ChannelConfig {
                     return Optional.of(type.cast(Integer.parseInt((String) properties.get(primaryKey))));
                 }
                 catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Property " + primaryKey + " is not a valid integer: " + properties.get(primaryKey));
+                    throw new BinderConfigurationException(
+                        "Property " + primaryKey + " is not a valid integer: " + properties.get(primaryKey));
                 }
             }
             return Optional.ofNullable(type.cast(properties.get(primaryKey)));
