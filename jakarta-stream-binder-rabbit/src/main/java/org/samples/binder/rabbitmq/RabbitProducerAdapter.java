@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import org.samples.binder.BinderConfigurationException;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.DomainEvent;
 import org.samples.binder.Message;
@@ -36,10 +37,11 @@ public class RabbitProducerAdapter<T> implements MessageProducer<T> {
     private final Channel channel;
     private final JsonMessageSerializer jsonSerializer;
 
-    public RabbitProducerAdapter(ChannelConfig cfg, Class<T> payloadType, RabbitConnectionManager connectionManager, ObjectMapper mapper) {
+    public RabbitProducerAdapter(ChannelConfig cfg, RabbitConnectionManager connectionManager, ObjectMapper mapper) {
         this.jsonSerializer = new JsonMessageSerializer(mapper);
-        this.exchange = cfg.getExchange();
-        this.routingKey = cfg.getRoutingKey();
+        this.exchange = cfg.getProperty("exchange", String.class)
+            .orElseThrow(() -> new BinderConfigurationException("exchange", cfg));
+        this.routingKey = cfg.getProperty("routing-key", String.class).orElse(null);
         this.destination = cfg.getChannelName();
         log.info("Creating RabbitProducerAdapter for channel {}/{} with destination {}", exchange, routingKey, destination);
         try {

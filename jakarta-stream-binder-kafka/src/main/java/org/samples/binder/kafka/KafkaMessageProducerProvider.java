@@ -20,13 +20,13 @@ public class KafkaMessageProducerProvider implements MessageProducerProvider {
     private ObjectMapper mapper;
 
     @Override
-    public ChannelConfig.BrokerType getBrokerType() {
-        return ChannelConfig.BrokerType.KAFKA;
+    public String getBrokerType() {
+        return "kafka";
     }
 
     @Override
-    public <T> MessageProducer<T> createProducer(ChannelConfig cfg, Class<T> payloadType) {
+    public <T> MessageProducer<T> createProducer(ChannelConfig cfg) {
         KafkaProducer<String, byte[]> p = kafkaClientManager.getOrCreateProducer(cfg);
-        return new KafkaProducerAdapter<>(cfg, payloadType, p, false, mapper);
+        return new KafkaProducerAdapter<>(cfg, p, false, mapper);
     }
 }

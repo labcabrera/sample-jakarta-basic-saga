@@ -14,6 +14,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.samples.binder.BinderConfigurationException;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.Message;
 import org.samples.binder.MessageProducer;
@@ -25,29 +26,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Slf4j
 public class KafkaProducerAdapter<T> implements MessageProducer<T> {
 
+    private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
+
     private final KafkaProducer<String, byte[]> producer;
     private final String topic;
     private final JsonMessageSerializer jsonSerializer;
     private final boolean owner;
 
-    public KafkaProducerAdapter(ChannelConfig cfg, Class<T> payloadType, ObjectMapper mapper) {
-        log.info("Creating KafkaProducerAdapter for channel '{}' topic='{}'", cfg.getChannelName(), cfg.getTopic());
+    public KafkaProducerAdapter(ChannelConfig cfg, ObjectMapper mapper) {
+        log.info("Creating KafkaProducerAdapter for channel '{}'", cfg.getChannelName());
         this.jsonSerializer = new JsonMessageSerializer(mapper);
-
+        String bootstrapServers = cfg.getProperty(BOOTSTRAP_SERVERS, String.class)
+            .orElseThrow(() -> new BinderConfigurationException(BOOTSTRAP_SERVERS, cfg));
+        this.topic = cfg.getProperty("topic", String.class)
+            .orElseThrow(() -> new BinderConfigurationException("topic", cfg));
         Properties props = new Properties();
-        props.put("bootstrap.servers", cfg.getBootstrapServers());
+        props.put("bootstrap.servers", bootstrapServers);
         props.put("key.serializer", StringSerializer.class.getName());
         props.put("value.serializer", ByteArraySerializer.class.getName());
         this.producer = new KafkaProducer<>(props);
-        this.topic = cfg.getTopic();
         this.owner = true;
     }
 
-    public KafkaProducerAdapter(ChannelConfig cfg, Class<T> payloadType, KafkaProducer<String, byte[]> sharedProducer, boolean owner,
-        ObjectMapper mapper) {
-        log.info("Creating KafkaProducerAdapter (shared) for channel '{}' topic='{}'", cfg.getChannelName(), cfg.getTopic());
+    public KafkaProducerAdapter(ChannelConfig cfg, KafkaProducer<String, byte[]> sharedProducer, boolean owner, ObjectMapper mapper) {
+        log.info("Creating KafkaProducerAdapter (shared) for channel '{}'", cfg.getChannelName());
+        this.topic = cfg.getProperty("topic", String.class)
+            .orElseThrow(() -> new BinderConfigurationException("topic" + cfg));
         this.producer = sharedProducer;
-        this.topic = cfg.getTopic();
         this.owner = owner;
         this.jsonSerializer = new JsonMessageSerializer(mapper);
     }

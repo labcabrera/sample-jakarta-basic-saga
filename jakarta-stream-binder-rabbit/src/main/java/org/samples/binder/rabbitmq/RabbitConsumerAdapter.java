@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import org.samples.binder.BinderConfigurationException;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageConsumer;
 import org.samples.binder.Message;
@@ -37,7 +38,7 @@ public class RabbitConsumerAdapter<T> implements MessageConsumer<T> {
     private final JsonMessageDeserializer jsonDeserializer = new JsonMessageDeserializer();
 
     public RabbitConsumerAdapter(ChannelConfig cfg, Class<T> payloadType, RabbitConnectionManager connectionManager) {
-        this.queue = cfg.getQueue();
+        this.queue = cfg.getProperty("queue", String.class).orElseThrow(() -> new BinderConfigurationException("queue", cfg));
         log.info("Creating RabbitConsumerAdapter for channel='{}' and queue='{}'", cfg.getChannelName(), queue);
         try {
             this.connection = connectionManager.getConnection(cfg);

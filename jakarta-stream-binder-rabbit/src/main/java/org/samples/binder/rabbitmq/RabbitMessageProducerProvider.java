@@ -19,12 +19,12 @@ public class RabbitMessageProducerProvider implements MessageProducerProvider {
     private ObjectMapper mapper;
 
     @Override
-    public ChannelConfig.BrokerType getBrokerType() {
-        return ChannelConfig.BrokerType.RABBITMQ;
+    public String getBrokerType() {
+        return "rabbitmq";
     }
 
     @Override
-    public <T> MessageProducer<T> createProducer(ChannelConfig cfg, Class<T> payloadType) {
-        return new RabbitProducerAdapter<>(cfg, payloadType, connectionManager, mapper);
+    public <T> MessageProducer<T> createProducer(ChannelConfig cfg) {
+        return new RabbitProducerAdapter<>(cfg, connectionManager, mapper);
     }
 }

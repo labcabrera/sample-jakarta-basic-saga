@@ -37,7 +37,7 @@ public class ProducerBeanFactory {
         Class<T> payloadType = resolvePayloadType(injectionPoint);
         return registry.getOrCreate(channelName, payloadType, () -> {
             ChannelConfig config = factory.loadChannelConfig(channelName);
-            return factory.createProducer(config, payloadType);
+            return factory.createProducer(config);
         });
     }
 

@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.samples.binder.BinderConfigurationException;
 import org.samples.binder.ChannelConfig;
 import org.samples.binder.MessageConsumer;
 import org.samples.binder.Message;
@@ -27,6 +28,10 @@ import java.util.function.Consumer;
 @Slf4j
 public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
 
+    private static final String TOPIC = "topic";
+    private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
+    private static final String CONSUMER_GROUP = "consumer.group";
+
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topic;
     private final Class<T> payloadType;
@@ -38,13 +43,16 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
 
     public KafkaConsumerAdapter(ChannelConfig cfg, Class<T> payloadType, ObjectMapper mapper) {
         this.mapper = mapper;
-        this.topic = cfg.getTopic();
         this.payloadType = payloadType;
-        String consumerGroup = cfg.getConsumerGroup() != null ? cfg.getConsumerGroup() : "group-" + UUID.randomUUID();
-        log.info("Creating KafkaConsumerAdapter for channel='{}' topic='{}'", cfg.getChannelName(), cfg.getTopic());
-
+        this.topic = cfg.getProperty(TOPIC, String.class)
+            .orElseThrow(() -> new BinderConfigurationException(TOPIC, cfg));
+        String consumerGroup = cfg.getProperty(CONSUMER_GROUP, String.class)
+            .orElse("group-" + UUID.randomUUID());
+        String bootstrapServers = cfg.getProperty(BOOTSTRAP_SERVERS, String.class)
+            .orElseThrow(() -> new BinderConfigurationException(BOOTSTRAP_SERVERS, cfg));
+        log.info("Creating KafkaConsumerAdapter for channel='{}' topic='{}'", cfg.getChannelName(), this.topic);
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cfg.getBootstrapServers());
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());

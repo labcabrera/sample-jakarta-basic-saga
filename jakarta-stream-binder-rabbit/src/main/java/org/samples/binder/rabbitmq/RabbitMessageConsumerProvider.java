@@ -13,8 +13,8 @@ public class RabbitMessageConsumerProvider implements MessageConsumerProvider {
     RabbitConnectionManager connectionManager;
 
     @Override
-    public ChannelConfig.BrokerType getBrokerType() {
-        return ChannelConfig.BrokerType.RABBITMQ;
+    public String getBrokerType() {
+        return "rabbitmq";
     }
 
     @Override

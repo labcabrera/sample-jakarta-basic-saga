@@ -3,9 +3,12 @@ package org.samples.binder;
 import java.io.IOException;
 import java.util.Properties;
 
+import lombok.Getter;
+
 @SuppressWarnings("unchecked")
 public class BinderConfiguration {
 
+    @Getter
     private Properties properties;
 
     public BinderConfiguration() {

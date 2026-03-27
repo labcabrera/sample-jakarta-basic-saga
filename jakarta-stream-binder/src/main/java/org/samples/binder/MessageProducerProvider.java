@@ -1,7 +1,7 @@
 package org.samples.binder;
 
 public interface MessageProducerProvider {
-    ChannelConfig.BrokerType getBrokerType();
+    String getBrokerType();
 
-    <T> MessageProducer<T> createProducer(ChannelConfig cfg, Class<T> payloadType);
+    <T> MessageProducer<T> createProducer(ChannelConfig cfg);
 }

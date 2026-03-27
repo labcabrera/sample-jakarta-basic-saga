@@ -90,7 +90,7 @@ public class OutboxDispatcher {
             Class<?> cls = Class.forName(e.getPayloadType());
             Object payload = mapper.readValue(e.getPayload(), cls);
             ChannelConfig cfg = producerFactory.loadChannelConfig(e.getChannel());
-            MessageProducer producer = producerFactory.createProducer(cfg, cls);
+            MessageProducer producer = producerFactory.createProducer(cfg);
             CompletionStage<SendResult> cs = producer.send(payload);
             SendResult result = cs.toCompletableFuture().get(8, TimeUnit.SECONDS);
             String messageId = result.messageId();

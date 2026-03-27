@@ -1,4 +1,4 @@
-@startuml Secuencia creación expediente
+@startuml sequence-diagram
 title Secuencia creación expediente
 hide footbox
 
@@ -14,8 +14,10 @@ participant "API Client" as Client
 participant "API" as API
 participant "API Event Dispatcher" as ApiEventDispatcher
 participant "API Database" as ApiDB
-participant "RabbitMQ" as Rabbit
-participant "Kafka" as Kafka
+box "Broker" #dde5e7
+    participant "RabbitMQ" as Rabbit
+    participant "Kafka" as Kafka
+end box
 participant "Worker" as Worker
 participant "Worker Event Dispatcher" as WorkerEventDispatcher
 participant "Worker Database" as WorkerDB

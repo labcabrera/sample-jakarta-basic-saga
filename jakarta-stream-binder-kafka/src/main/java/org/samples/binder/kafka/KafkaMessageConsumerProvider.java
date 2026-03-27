@@ -16,8 +16,8 @@ public class KafkaMessageConsumerProvider implements MessageConsumerProvider {
     private ObjectMapper mapper;
 
     @Override
-    public ChannelConfig.BrokerType getBrokerType() {
-        return ChannelConfig.BrokerType.KAFKA;
+    public String getBrokerType() {
+        return "kafka";
     }
 
     @Override
