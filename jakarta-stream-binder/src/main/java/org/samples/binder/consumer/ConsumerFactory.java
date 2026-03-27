@@ -34,7 +34,7 @@ public class ConsumerFactory {
 
     public <T> ChannelConfig loadChannelConfig(String channelName, Class<T> payloadType) {
         log.info("Cargando configuración para canal {} con payload {}", channelName, payloadType.getName());
-        String type = config.getValue("messaging.channels." + channelName + ".type", String.class);
+        String type = config.getType(channelName);
         String prefix = "messaging.channels." + channelName + ".";
         String defaultPrefix = "messaging.channels." + type.toLowerCase() + ".";
         Properties filteredProperties = new Properties();

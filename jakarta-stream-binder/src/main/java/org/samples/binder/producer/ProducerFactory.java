@@ -24,8 +24,8 @@ public class ProducerFactory {
     private Instance<MessageProducerProvider> providers;
 
     public <T> ChannelConfig loadChannelConfig(String channelName) {
-        log.info("Cargando configuración para canal {}", channelName);
-        String type = config.getValue("messaging.channels." + channelName + ".type", String.class);
+        log.info("Loading channel config for '{}'", channelName);
+        String type = config.getType(channelName);
         String prefix = "messaging.channels." + channelName + ".";
         String defaultPrefix = "messaging.channels." + type + ".";
         Properties filteredProperties = new Properties();

@@ -1,6 +1,8 @@
 package org.samples.binder.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -28,29 +30,29 @@ import java.util.function.Consumer;
 @Slf4j
 public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
 
-    private static final String TOPIC = "topic";
     private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
-    private static final String CONSUMER_GROUP = "consumer.group";
 
     private final KafkaConsumer<String, byte[]> consumer;
-    private final String topic;
     private final Class<T> payloadType;
-    private final ObjectMapper mapper;
+    private final ObjectReader reader;
     private volatile Consumer<Message<T>> handler;
     private final List<CompletableFuture<Message<T>>> pending = Collections.synchronizedList(new ArrayList<>());
     private final Thread poller;
     private volatile boolean running = true;
 
     public KafkaConsumerAdapter(ChannelConfig cfg, Class<T> payloadType, ObjectMapper mapper) {
-        this.mapper = mapper;
         this.payloadType = payloadType;
-        this.topic = cfg.getProperty(TOPIC, String.class)
-            .orElseThrow(() -> new BinderConfigurationException(TOPIC, cfg));
-        String consumerGroup = cfg.getProperty(CONSUMER_GROUP, String.class)
+        this.reader = mapper.readerFor(payloadType).without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        String topic = cfg.getProperty("topic", String.class)
+            .orElseThrow(() -> new BinderConfigurationException("topic", cfg));
+        String consumerGroup = cfg.getProperty("consumer-group", String.class)
             .orElse("group-" + UUID.randomUUID());
         String bootstrapServers = cfg.getProperty(BOOTSTRAP_SERVERS, String.class)
             .orElseThrow(() -> new BinderConfigurationException(BOOTSTRAP_SERVERS, cfg));
-        log.info("Creating KafkaConsumerAdapter for channel='{}' topic='{}'", cfg.getChannelName(), this.topic);
+        log.info("Creating KafkaConsumerAdapter for channel='{}' topic='{}' consumerGroup='{}'",
+            cfg.getChannelName(),
+            topic,
+            consumerGroup);
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
@@ -105,7 +107,6 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
         this.poller.start();
     }
 
-    @SuppressWarnings("unchecked")
     private T deserialize(byte[] body) {
         if (body == null)
             return null;
@@ -113,7 +114,7 @@ public class KafkaConsumerAdapter<T> implements MessageConsumer<T> {
             return (T) new String(body);
         }
         try {
-            return mapper.readValue(body, payloadType);
+            return reader.readValue(body);
         }
         catch (Exception e) {
             log.warn("Failed to deserialize Kafka payload, falling back to string", e);

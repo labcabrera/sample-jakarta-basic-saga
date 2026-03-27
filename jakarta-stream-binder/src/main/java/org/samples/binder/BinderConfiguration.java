@@ -5,7 +5,6 @@ import java.util.Properties;
 
 import lombok.Getter;
 
-@SuppressWarnings("unchecked")
 public class BinderConfiguration {
 
     @Getter
@@ -21,15 +20,17 @@ public class BinderConfiguration {
         }
     }
 
-    public <T> T getValue(String key, Class<T> clazz) {
-        if (clazz == Integer.class) {
-            return (T) Integer.valueOf(properties.getProperty(key));
+    /**
+     * Obtiene el tipo de broker para un determinado canal (ej: rabbitmq, kafka, etc.)
+     * @param channelName
+     * @return
+     */
+    public String getType(String channelName) {
+        String key = "messaging.channels." + channelName + ".type";
+        if (!properties.containsKey(key)) {
+            throw new BinderConfigurationException("No type defined for channel: " + channelName);
         }
-        return (T) properties.get(key);
-    }
-
-    public boolean containsKey(String key) {
-        return this.properties.containsKey(key);
+        return properties.getProperty(key);
     }
 
 }
